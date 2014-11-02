@@ -106,10 +106,6 @@ public class PredicateReader extends Entity implements PredicateReaderInterface 
 		System.out.println("reading file "+fileName+"...");
 		try {
 			stream = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
-			String line;
-			while((line = stream.readLine()) != null){
-			System.out.println(line);
-			}
 			ret = fromStream(stream);
 		}
 		catch (FileNotFoundException ex) {
@@ -141,6 +137,10 @@ public class PredicateReader extends Entity implements PredicateReaderInterface 
 		while (line != null) {
 			try {
 				line = stream.readLine();
+				
+				if(line != null)
+					System.out.println(line);
+				
 				lineNumber++;
 			} catch (IOException ex) {
 				error(formatLineNumber()+ex.toString());
