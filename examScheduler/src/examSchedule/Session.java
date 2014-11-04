@@ -4,14 +4,14 @@ public class Session {
 	private String name;
 	private String room;
 	private String day;
-	private int time;
-	private int length;
+	private Long time;
+	private Long length;
 	
 	public Session(String n){
 		name = n;
 	}
 	
-	public Session(String n, String r, String d, int t, int len){
+	public Session(String n, String r, String d, Long t, Long len){
 		name = n;
 		room = r;
 		day = d;
@@ -43,19 +43,28 @@ public class Session {
 		this.day = day;
 	}
 
-	public int getTime() {
+	public Long getTime() {
 		return time;
 	}
 
-	public void setTime(int time) {
+	@Override
+	public String toString() {
+		if(room == null && length == null && day == null && time == null){
+			return "Session(" + name +")";
+		}
+		return "Session(" + name + ", " + room + ", " + day
+				+ ", " + time + ", " + length + ")";
+	}
+
+	public void setTime(Long time) {
 		this.time = time;
 	}
 
-	public int getLength() {
+	public Long getLength() {
 		return length;
 	}
 
-	public void setLength(int length) {
+	public void setLength(Long length) {
 		this.length = length;
 	}
 }
