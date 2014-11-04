@@ -1,11 +1,16 @@
 package examSchedule;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import examSchedule.parser.*;
 import examSchedule.parser.Predicate.ParamType;
 
 public class Environment extends PredicateReader implements ExamSchedulePredicates, EnvironmentInterface {
-
+	ArrayList<Student> students = new ArrayList<Student>();
+	ArrayList<Instructor> instructors = new ArrayList<Instructor>();
+	ArrayList<Room> rooms = new ArrayList<Room>();
+	ArrayList<Course> courses = new ArrayList<Course>();
+	
 	public Environment(String name) {
 		super(name);
 		// TODO Auto-generated constructor stub
@@ -31,50 +36,81 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_student(String p) {
-		// TODO Auto-generated method stub
+		if(e_student(p)){
+		Student n = new Student(p); 
+		students.add(n);
+		}
 		
 	}
 
 	@Override
 	public boolean e_student(String p) {
-		// TODO Auto-generated method stub
-		return false;
+		Student n = new Student(p);
+		if(students.contains(n)){
+			return false;
+		}
+		else{
+		return true;
+		}
 	}
 
 	@Override
 	public void a_instructor(String p) {
-		// TODO Auto-generated method stub
+		if(e_instructor(p)){
+			Instructor n = new Instructor(p); 
+			instructors.add(n);
+			}
 		
 	}
 
 	@Override
 	public boolean e_instructor(String p) {
-		// TODO Auto-generated method stub
-		return false;
+		Instructor n = new Instructor(p); 
+		if(instructors.contains(n)){
+			return false;
+		}
+		else{
+		return true;
+		}
 	}
 
 	@Override
 	public void a_room(String p) {
-		// TODO Auto-generated method stub
-		
+		if(e_room(p)){
+			Room n = new Room(p); 
+			rooms.add(n);
+			}
 	}
 
 	@Override
 	public boolean e_room(String p) {
-		// TODO Auto-generated method stub
-		return false;
+		Room n = new Room(p); 
+		if(rooms.contains(n)){
+			return false;
+		}
+		else{
+		return true;
+		}
 	}
 
 	@Override
 	public void a_course(String p) {
-		// TODO Auto-generated method stub
+		if(e_course(p)){
+			Course n = new Course(p); 
+			courses.add(n);
+			}
 		
 	}
 
 	@Override
 	public boolean e_course(String p) {
-		// TODO Auto-generated method stub
-		return false;
+		Course n = new Course(p); 
+		if(courses.contains(n)){
+			return false;
+		}
+		else{
+		return true;
+		}
 	}
 
 	@Override
