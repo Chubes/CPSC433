@@ -9,7 +9,7 @@ public class Course {
 
 	@Override
 	public String toString() {
-		return "Course (" + course + ")";
+		return "course (" + course + ")";
 	}
 
 	public String getCourse() {

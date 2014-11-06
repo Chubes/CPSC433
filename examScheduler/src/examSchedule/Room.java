@@ -2,7 +2,6 @@ package examSchedule;
 
 public class Room {
 	private String room;
-	private int capacity;
 	
 	public Room(String r){
 		room = r;
@@ -16,16 +15,8 @@ public class Room {
 		this.room = room;
 	}
 
-	public int getCapacity() {
-		return capacity;
-	}
-
-	public void setCapacity(int capacity) {
-		this.capacity = capacity;
-	}
-
 	@Override
 	public String toString() {
-		return "room(" + room + ", " + capacity + ")";
+		return "room(" + room + ")";
 	}
 }

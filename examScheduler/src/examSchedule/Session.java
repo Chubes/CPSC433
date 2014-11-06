@@ -50,9 +50,9 @@ public class Session {
 	@Override
 	public String toString() {
 		if(room == null && length == null && day == null && time == null){
-			return "Session(" + name +")";
+			return "session(" + name +")";
 		}
-		return "Session(" + name + ", " + room + ", " + day
+		return "session(" + name + ", " + room + ", " + day
 				+ ", " + time + ", " + length + ")";
 	}
 

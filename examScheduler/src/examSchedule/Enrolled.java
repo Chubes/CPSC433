@@ -1,11 +1,37 @@
 package examSchedule;
-
-import java.util.ArrayList;
+	// I am not sure about the following requirement for "Enrolled" - Landon.
+	// "student-name, vector-of-course-names-and-lecture-names"
 
 public class Enrolled {
-	// courseLecturePair is a pairing of Course.name AND Lecture.name
-	//look at Pair.java from the parser for more information
-	private String studentName = null;
 	
+	private String student;
+	private String course;
+	private String lecture;
+		
+	public Enrolled(String s, String c, String l){
+		student= s;
+		course = c;
+		lecture = l;
+	}
+
+	public String getStudent() {
+		return student;
+	}
+
+	public void setStudent(String student) {
+		this.student = student;
+	}
 	
+	public String getCourse() {
+		return course;
+	}
+
+	public void setCourse(String course) {
+		this.course = course;
+	}
+	
+	@Override
+	public String toString() {
+		return "enrolled(" + student + ", " + course + ", " + lecture + ")";
+	}
 }
