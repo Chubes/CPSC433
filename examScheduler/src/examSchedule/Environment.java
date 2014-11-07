@@ -15,6 +15,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 	ArrayList<Instructs> instructs = new ArrayList<Instructs>();
 	ArrayList<Capacity> capacities = new ArrayList<Capacity>();
+	ArrayList<ExamLength> exams = new ArrayList<ExamLength>();
+	
+	ArrayList<RoomAssign> roomAssigns = new ArrayList<RoomAssign>();
+	ArrayList<DayAssign> dayAssigns = new ArrayList<DayAssign>();
+	ArrayList<Time> times = new ArrayList<Time>();
+	ArrayList<Length> lengths = new ArrayList<Length>();
+	ArrayList<At> atList = new ArrayList<At>();
+	ArrayList<Enrolled> enrollments = new ArrayList<Enrolled>();
+	ArrayList<Assign> assigns = new ArrayList<Assign>();
+	
 	public Environment(String name) {
 		super(name);
 		// TODO Auto-generated constructor stub
@@ -41,8 +51,8 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public void a_student(String p) {
 		if(e_student(p)){
-		Student n = new Student(p); 
-		students.add(n);
+			Student n = new Student(p); 
+			students.add(n);
 		}
 		
 	}
@@ -54,7 +64,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			return false;
 		}
 		else{
-		return true;
+			return true;
 		}
 	}
 
@@ -63,8 +73,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if(e_instructor(p)){
 			Instructor n = new Instructor(p); 
 			instructors.add(n);
-			}
-		
+		}
 	}
 
 	@Override
@@ -74,7 +83,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			return false;
 		}
 		else{
-		return true;
+			return true;
 		}
 	}
 
@@ -83,7 +92,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if(e_room(p)){
 			Room n = new Room(p); 
 			rooms.add(n);
-			}
+		}
 	}
 
 	@Override
@@ -93,7 +102,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			return false;
 		}
 		else{
-		return true;
+			return true;
 		}
 	}
 
@@ -102,7 +111,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if(e_course(p)){
 			Course n = new Course(p); 
 			courses.add(n);
-			}
+		}
 		
 	}
 
@@ -122,7 +131,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if(e_session(p)){
 			Session n = new Session(p); 
 			sessions.add(n);
-			}
+		}
 	}
 
 	@Override
@@ -141,7 +150,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if(e_day(p)){
 			Day n = new Day(p); 
 			days.add(n);
-			}
+		}
 	}
 	
 
@@ -158,14 +167,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_lecture(String c, String lec) {
-		 
 		if(e_lecture(c, lec)){
-			Lecture n = new Lecture(c, lec);
 			if(e_course(c)){
 				a_course(c);
 			}
+			Lecture n = new Lecture(c, lec);
 			lectures.add(n);
-			}
+		}
 		
 		
 	}
@@ -184,16 +192,15 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public void a_lecture(String c, String lec, String instructor, Long length) {
 		if(e_lecture(c, lec, instructor, length)){
-			Lecture n = new Lecture(c, lec, instructor, length);
 			if(e_course(c)){
 				a_course(c);
 			}
 			if(e_instructor(instructor)){
 				a_instructor(instructor);
 			}
+			Lecture n = new Lecture(c, lec, instructor, length);
 			lectures.add(n);
-			}
-		
+		}
 		
 		
 	}
@@ -210,7 +217,6 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public void a_instructs(String p, String c, String l) {
 		if(e_instructs(p, c, l)){
-			Instructs n = new Instructs(p, c, l);
 			if(e_course(c)){
 				a_course(c);
 			}
@@ -220,7 +226,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			if(e_lecture(c, l)){
 				a_lecture(c, l);
 			}
-			
+			Instructs n = new Instructs(p, c, l);
 			instructs.add(n);
 		}
 		
@@ -229,7 +235,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public boolean e_instructs(String p, String c, String l) {
 		Instructs n = new Instructs(p, c, l); 
-		if(lectures.contains(n)){
+		if(instructs.contains(n)){
 			return false;
 		}
 		else{
@@ -239,79 +245,151 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_examLength(String c, String lec, Long hours) {
-		// TODO Auto-generated method stub
-		
+		if(e_examLength(c, lec, hours)) {
+			if(e_course(c)) {
+				a_course(c);
+			}
+			if(e_lecture(c, lec)){
+				a_lecture(c, lec);
+			}
+			ExamLength n = new ExamLength(c, lec, hours);
+			exams.add(n);
+		}
 	}
 
 	@Override
 	public boolean e_examLength(String c, String lec, Long hours) {
-		// TODO Auto-generated method stub
-		return false;
+		ExamLength n = new ExamLength(c, lec, hours); 
+		if(exams.contains(n)) {
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 
 	@Override
 	public void a_roomAssign(String p, String room) {
-		// TODO Auto-generated method stub
+		if(e_roomAssign(p, room)) {
+			if(e_session(p)) {
+				a_session(p);
+			}
+			if(e_room(room)){
+				a_room(room);
+			}
+			RoomAssign n = new RoomAssign(p, room);
+			roomAssigns.add(n);
+		}
 		
 	}
 
 	@Override
 	public boolean e_roomAssign(String p, String room) {
-		// TODO Auto-generated method stub
-		return false;
+		RoomAssign n = new RoomAssign(p, room); 
+		if(roomAssigns.contains(n)) {
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 
 	@Override
 	public void a_dayAssign(String p, String day) {
-		// TODO Auto-generated method stub
-		
+		if(e_dayAssign(p, day)) {
+			if(e_session(p)) {
+				a_session(p);
+			}
+			if(e_day(day)) {
+				a_day(day);
+			}
+			DayAssign n = new DayAssign(p, day);
+			dayAssigns.add(n);
+		}
 	}
 
 	@Override
 	public boolean e_dayAssign(String p, String day) {
-		// TODO Auto-generated method stub
-		return false;
+		DayAssign n = new DayAssign(p, day);
+		if(dayAssigns.contains(n)) {
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 
 	@Override
 	public void a_time(String p, Long time) {
-		// TODO Auto-generated method stub
-		
+		if(e_time(p, time)) {
+			if(e_session(p)) {
+				a_session(p);
+			}
+			Time n = new Time(p, time);
+			times.add(n);
+		}
 	}
 
 	@Override
 	public boolean e_time(String p, Long time) {
-		// TODO Auto-generated method stub
-		return false;
+		Time n = new Time(p, time);
+		if(times.contains(n)) {
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 
 	@Override
 	public void a_length(String p, Long length) {
-		// TODO Auto-generated method stub
-		
+		if(e_length(p, length)) {
+			if(e_session(p)) {
+				a_session(p);
+			}
+			Length n = new Length(p, length);
+			lengths.add(n);
+		}
 	}
 
 	@Override
 	public boolean e_length(String p, Long length) {
-		// TODO Auto-generated method stub
-		return false;
+		Length n = new Length(p, length);
+		if(lengths.contains(n)) {
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 
 	@Override
 	public void a_at(String session, String day, Long time, Long length) {
-		// TODO Auto-generated method stub
-		
+		if(e_at(session, day, time, length)) {
+			if(e_session(session)) {
+				a_session(session);
+			}
+			if(e_day(day)) {
+				a_day(day);
+			}
+			At n = new At(session, day, time, length);
+			atList.add(n);
+		}
 	}
 
 	@Override
 	public boolean e_at(String session, String day, Long time, Long length) {
-		// TODO Auto-generated method stub
-		return false;
+		At n = new At(session, day, time, length);
+		if(atList.contains(n)) {
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 
 	@Override
-	public void a_session(String session, String room, String day, Long time,
-			Long length) {
+	public void a_session(String session, String room, String day, Long time, Long length) {
 		if(e_session(session, room, day, time, length)){
 			if(e_room(room)){
 				a_room(room);
@@ -321,35 +399,52 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			}
 			Session n = new Session(session, room, day, time, length); 
 			sessions.add(n);
-			}
+		}
 	}
 	
 
 	@Override
-	public boolean e_session(String session, String room, String day,
-			Long time, Long length) {
-		Session n = new Session(session, room, day, time, length); 
-		if(lectures.contains(n)){
-			return false;
-		}
-		else{
-			return true;
+	public boolean e_session(String session, String room, String day, Long time, Long length) {
+			Session n = new Session(session, room, day, time, length); 
+			if(lectures.contains(n)){
+				return false;
+			}
+			else{
+				return true;
 		}
 	}
 	
 
 	@Override
 	public void a_enrolled(String student, String c, String l) {
-		// TODO Auto-generated method stub
-		
+		if(e_enrolled(student, c, l)){
+// Removed due to duplicate check in e_lecture -- Landon
+			/*if(e_course(c)) {
+				a_course(c);
+			} */
+			if(e_lecture(c, l)) {
+				a_lecture(c, l);
+			}
+			if(e_student(student)) {
+				a_student(student);
+			}
+			
+			Enrolled n = new Enrolled(student, c, l); 
+			enrollments.add(n);
+		}
 	}
 
 	@Override
 	public boolean e_enrolled(String student, String c, String l) {
-		// TODO Auto-generated method stub
-		return false;
+		Enrolled n = new Enrolled(student, c, l); 
+		if(enrollments.contains(n)){
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
-
+//This section is incomplete. -- Landon
 	@Override
 	public void a_enrolled(String student, Vector<Pair<ParamType, Object>> list) {
 		// TODO Auto-generated method stub
@@ -359,13 +454,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public void a_capacity(String r, Long cap) {
 		if(e_capacity(r, cap)){
-			if(e_room(r)){
+			if(e_room(r)) {
 				a_room(r);
 			}
 			
 			Capacity n = new Capacity(r, cap); 
 			capacities.add(n);
-			}
+		}
 		
 	}
 
@@ -382,14 +477,32 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_assign(String c, String lec, String session) {
-		// TODO Auto-generated method stub
-		
+		if(e_assign(c, lec, session)){
+// Removed due to duplicate check in e_lecture -- Landon
+			/*if(e_course(c)) {
+				a_course(c);
+			} */
+			if(e_lecture(c, lec)) {
+				a_lecture(c, lec);
+			}
+			if(e_session(session)) {
+				a_session(session);
+			}
+			
+			Assign n = new Assign(c, lec, session); 
+			assigns.add(n);
+		}
 	}
 
 	@Override
 	public boolean e_assign(String c, String lec, String session) {
-		// TODO Auto-generated method stub
-		return false;
+		Assign n = new Assign(c, lec, session); 
+		if(assigns.contains(n)){
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 	
 	//calls the fromFile() declared in PredicateReader.java
