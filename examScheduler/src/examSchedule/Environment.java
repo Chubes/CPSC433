@@ -2,6 +2,8 @@ package examSchedule;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import javax.swing.text.html.HTMLDocument.Iterator;
+
 import examSchedule.parser.*;
 import examSchedule.parser.Predicate.ParamType;
 
@@ -445,10 +447,104 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		}
 	}
 //This section is incomplete. -- Landon
+//trying to figure out how this works --Mike
 	@Override
 	public void a_enrolled(String student, Vector<Pair<ParamType, Object>> list) {
-		// TODO Auto-generated method stub
+		/*java.util.Iterator<Pair<ParamType, Object>> itr = list.iterator();
+		while(itr.hasNext()){
+			itr.next().			
+			if(e_enrolled(student, itr.next()., itr.next().getValue())){
+				// Removed due to duplicate check in e_lecture -- Landon
+							/*if(e_course(c)) {
+								a_course(c);
+							} 
+							if(e_lecture(c, l)) {
+								a_lecture(c, l);
+							}
+							if(e_student(student)) {
+								a_student(student);
+							}
+							
+							Enrolled n = new Enrolled(student, c, l); 
+							enrollments.add(n);
+						}
+		}*/
 		
+		
+	}
+
+	@Override
+	public String toString() {
+		String instr ="";
+		instr += "//Instructors\n";
+		for(int i = 0; i<instructors.size(); i++){
+			instr += instructors.get(i).toString() + "\n";	
+		}
+		String std = "\n//Students\n";
+		for(int i = 0; i<students.size(); i++){
+			std += students.get(i).toString() + "\n";	
+		}
+		String rms = "\n//Rooms\n";
+		for(int i = 0; i<rooms.size(); i++){
+			rms += rooms.get(i).toString() + "\n";	
+		}
+		String crs = "\n//Courses\n";
+		for(int i = 0; i<courses.size(); i++){
+			crs += courses.get(i).toString() + "\n";	
+		}
+		String ds = "\n//Days\n";
+		for(int i = 0; i<days.size(); i++){
+			ds += days.get(i).toString() + "\n";	
+		}
+		String lecs = "\n//Lectures\n";
+		for(int i = 0; i < lectures.size(); i++){
+			lecs += lectures.get(i).toString() + "\n";	
+		}
+		String caps = "\n//Capacities\n";
+		for(int i = 0;i < capacities.size(); i++){
+			caps += capacities.get(i).toString() + "\n";	
+		}
+		String sess = "\n//Sessions\n";
+		for(int i = 0;i <  sessions.size(); i++){
+			sess += sessions.get(i).toString() + "\n";	
+		}
+		String instrc = "\n//Instructs\n";
+		for(int i = 0;i <  instructs.size(); i++){
+			instrc += instructs.get(i).toString() + "\n";	
+		}
+		String exms = "\n//Exams\n";
+		for(int i = 0;i <  exams.size(); i++){
+			exms += exams.get(i).toString() + "\n";	
+		}
+		String rmas = "\n//Room Assigns\n";
+		for(int i = 0;i <  roomAssigns.size(); i++){
+			rmas += roomAssigns.get(i).toString() + "\n";	
+		}
+		String dass = "\n//Day Assigns\n";
+		for(int i = 0;i <  dayAssigns.size(); i++){
+			dass += dayAssigns.get(i).toString() + "\n";	
+		}
+		String t = "\n//Times\n";
+		for(int i = 0;i <  times.size(); i++){
+			t += times.get(i).toString() + "\n";	
+		}
+		String lens = "\n//Lengths\n";
+		for(int i = 0;i <  lengths.size(); i++){
+			lens += lengths.get(i).toString() + "\n";	
+		}
+		String ats = "\n//At\n";
+		for(int i = 0;i <  atList.size(); i++){
+			ats += atList.get(i).toString() + "\n";	
+		}
+		String enrls = "\n//Enrolments\n";
+		for(int i = 0;i <  enrollments.size(); i++){
+			enrls += enrollments.get(i).toString() + "\n";	
+		}
+		String assns = "\n//Assigns\n";
+		for(int i = 0;i <  assigns.size(); i++){
+			assns += assigns.get(i).toString() + "\n";	
+		}
+		return instr + std +  rms + crs +  ds + lecs + caps + sess + instrc + exms + rmas + dass + t + lens + ats + enrls + assns ;
 	}
 
 	@Override
