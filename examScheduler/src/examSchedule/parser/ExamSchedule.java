@@ -98,6 +98,7 @@ public class ExamSchedule {
 		try {
 			PrintWriter out = new PrintWriter(outFileName);
 			out.println(env.toString());
+		
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

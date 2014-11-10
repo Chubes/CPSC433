@@ -65,9 +65,9 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if(students.contains(n)){
 			return false;
 		}
-		else{
+		//else{
 			return true;
-		}
+		//}
 	}
 
 	@Override
@@ -408,7 +408,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public boolean e_session(String session, String room, String day, Long time, Long length) {
 			Session n = new Session(session, room, day, time, length); 
-			if(lectures.contains(n)){
+			if(sessions.contains(n)){
 				return false;
 			}
 			else{
@@ -480,7 +480,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		for(int i = 0; i<instructors.size(); i++){
 			instr += instructors.get(i).toString() + "\n";	
 		}
-		String std = "\n//Students\n";
+		String std = "\n//Students " + students.size() + "\n";
 		for(int i = 0; i<students.size(); i++){
 			std += students.get(i).toString() + "\n";	
 		}
@@ -544,8 +544,9 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		for(int i = 0;i <  assigns.size(); i++){
 			assns += assigns.get(i).toString() + "\n";	
 		}
-		return instr + std +  rms + crs +  ds + lecs + caps + sess + instrc + exms + rmas + dass + t + lens + ats + enrls + assns ;
+		return instr + std +  rms + crs +  ds + lecs + caps + sess + instrc + exms + rmas + dass + t + lens + ats +assns+  enrls  ;
 	}
+	
 
 	@Override
 	public void a_capacity(String r, Long cap) {
