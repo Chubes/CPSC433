@@ -17,5 +17,7 @@ public interface EnvironmentInterface extends PredicateReaderInterface {
 	 */
 	public void setCurrentSolution(SolutionInterface currentSolution);
 
+	//public abstract Object toString(String outFileName);
+
 	
 }

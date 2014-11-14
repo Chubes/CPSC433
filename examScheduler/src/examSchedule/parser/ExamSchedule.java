@@ -62,7 +62,7 @@ public class ExamSchedule {
 			// let's assume it's a time in milliseconds: we'll do a search on it.
 			try {
 				long timeLimit = new Long(args[1]).longValue();
-        doSearch(env, fromFile+".out", timeLimit);
+        doSearch(env, fromFile + ".out", timeLimit);
 			}
 			// not a time, so it must be a filename to read a solution to evaluate from...
 			catch (NumberFormatException ex) {
@@ -97,7 +97,11 @@ public class ExamSchedule {
 		//To be filled in as part of the assignment...
 		try {
 			PrintWriter out = new PrintWriter(outFileName);
+			
+			
+			
 			out.println(env.toString());
+			out.close();
 		
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

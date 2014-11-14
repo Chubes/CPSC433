@@ -1,4 +1,6 @@
 package examSchedule;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -450,36 +452,41 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 //trying to figure out how this works --Mike
 	@Override
 	public void a_enrolled(String student, Vector<Pair<ParamType, Object>> list) {
-		/*java.util.Iterator<Pair<ParamType, Object>> itr = list.iterator();
+		java.util.Iterator<Pair<ParamType, Object>> itr = list.iterator();
 		while(itr.hasNext()){
-			itr.next().			
-			if(e_enrolled(student, itr.next()., itr.next().getValue())){
-				// Removed due to duplicate check in e_lecture -- Landon
-							/*if(e_course(c)) {
-								a_course(c);
+			Pair<ParamType, Object> c = itr.next();
+			Pair<ParamType, Object> lec = itr.next();
+			String course = (String) c.getValue();
+			String lecture = (String) lec.getValue(); 
+					if(e_enrolled(student, course, lecture)){
+				
+							if(e_course(course)) {
+								a_course(course);
 							} 
-							if(e_lecture(c, l)) {
-								a_lecture(c, l);
+							if(e_lecture(course, lecture)) {
+								a_lecture(course, lecture);
 							}
 							if(e_student(student)) {
 								a_student(student);
 							}
 							
-							Enrolled n = new Enrolled(student, c, l); 
+							Enrolled n = new Enrolled(student, course, lecture); 
 							enrollments.add(n);
 						}
-		}*/
+		}
 		
 		
 	}
 
 	@Override
 	public String toString() {
+		
 		String instr ="";
-		instr += "//Instructors\n";
+				instr += "//Instructors\n";
 		for(int i = 0; i<instructors.size(); i++){
 			instr += instructors.get(i).toString() + "\n";	
 		}
+		//out.println()
 		String std = "\n//Students " + students.size() + "\n";
 		for(int i = 0; i<students.size(); i++){
 			std += students.get(i).toString() + "\n";	
@@ -544,7 +551,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		for(int i = 0;i <  assigns.size(); i++){
 			assns += assigns.get(i).toString() + "\n";	
 		}
-		return instr + std +  rms + crs +  ds + lecs + caps + sess + instrc + exms + rmas + dass + t + lens + ats +assns+  enrls  ;
+		return instr + std +  rms + crs +  ds + lecs + caps + sess + instrc + exms + rmas + dass + t + lens + ats + enrls + assns    ;
 	}
 	
 
