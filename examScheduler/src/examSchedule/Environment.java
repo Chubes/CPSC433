@@ -238,7 +238,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	public boolean e_student(String p) {
 		
 		for(int i = 0; i < students.size(); i++){
-			if(students.get(i).name == p)
+			if(students.get(i).name.equals(p))
 				return true;
 		}
 		
@@ -258,7 +258,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	public boolean e_instructor(String p) {
 		
 		for(int i = 0; i < instructors.size(); i++){
-			if(instructors.get(i).name == p)
+			if(instructors.get(i).name.equals(p))
 				return true;
 		}
 		
@@ -277,7 +277,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public boolean e_room(String p) {
 		for(int i = 0; i < rooms.size(); i++){
-			if(rooms.get(i).room == p)
+			if(rooms.get(i).room.equals(p))
 				return true;
 		}
 		
@@ -287,7 +287,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_course(String p) {
-		if(e_course(p)){
+		if(!e_course(p)){
 			Course n = new Course(p); 
 			courses.add(n);
 		}
@@ -296,18 +296,18 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public boolean e_course(String p) {
-		Course n = new Course(p); 
-		if(courses.contains(n)){
+		for(int i = 0; i < courses.size(); i++){
+			if(courses.get(i).name.equals(p))
+				return true;
+		}
+		
 			return false;
-		}
-		else{
-			return true;
-		}
+		
 	}
 
 	@Override
 	public void a_session(String p) {
-		if(e_session(p)){
+		if(!e_session(p)){
 			Session n = new Session(p); 
 			sessions.add(n);
 		}
@@ -315,39 +315,33 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public boolean e_session(String p) {
-		Session n = new Session(p); 
-		if(sessions.contains(n)){
+		for(int i = 0; i < sessions.size(); i++){
+			if(sessions.get(i).name.equals(p))
+				return true;
+		}
+		
 			return false;
-		}
-		else{
-			return true;
-		}
+		
 	}
 
 	@Override
 	public void a_day(String p) {
-		if(e_day(p)){
-			Day n = new Day(p); 
-			days.add(n);
+		if(p == NULL){
+			System.out.println("bad Day fact")
 		}
 	}
 	
 
 	@Override
 	public boolean e_day(String p) {
-		Day n = new Day(p); 
-		if(days.contains(n)){
-			return false;
-		}
-		else{
-			return true;
-		}
+		//not important 
+		
 	}
 
 	@Override
 	public void a_lecture(String c, String lec) {
-		if(e_lecture(c, lec)){
-			if(e_course(c)){
+		if(!e_lecture(c, lec)){
+			if(!e_course(c)){
 				a_course(c);
 			}
 			Lecture n = new Lecture(c, lec);
@@ -359,19 +353,19 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public boolean e_lecture(String c, String lec) {
-		Lecture n = new Lecture(c, lec); 
-		if(lectures.contains(n)){
+		for(int i = 0; i < students.size(); i++){
+			if(students.get(i).name == p)
+				return true;
+		}
+		
 			return false;
-		}
-		else{
-			return true;
-		}
+		
 	}
 
 	@Override
 	public void a_lecture(String c, String lec, String instructor, Long length) {
 		if(e_lecture(c, lec, instructor, length)){
-			if(e_course(c)){
+			if(!e_course(c)){
 				a_course(c);
 			}
 			if(e_instructor(instructor)){

@@ -7,8 +7,9 @@ public class Lecture {
 	public Instructor instructor;
 	public Long examLength;
 	
-	public Lecture(String l){
+	public Lecture(String l, String c){
 		name = l;
+		course = c
 	}
 
 	@Override
