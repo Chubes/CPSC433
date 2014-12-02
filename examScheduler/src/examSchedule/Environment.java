@@ -15,19 +15,192 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	ArrayList<Room> rooms = new ArrayList<Room>();
 	ArrayList<Course> courses = new ArrayList<Course>();
 	ArrayList<Session> sessions = new ArrayList<Session>();
-	ArrayList<Day> days = new ArrayList<Day>();
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
-	ArrayList<Instructs> instructs = new ArrayList<Instructs>();
-	ArrayList<Capacity> capacities = new ArrayList<Capacity>();
-	ArrayList<ExamLength> exams = new ArrayList<ExamLength>();
+//	ArrayList<Day> days = new ArrayList<Day>();
+//	ArrayList<Instructs> instructs = new ArrayList<Instructs>();
+//	ArrayList<Capacity> capacities = new ArrayList<Capacity>();
+//	ArrayList<ExamLength> exams = new ArrayList<ExamLength>();
+//	ArrayList<RoomAssign> roomAssigns = new ArrayList<RoomAssign>();
+//	ArrayList<DayAssign> dayAssigns = new ArrayList<DayAssign>();
+//	ArrayList<Time> times = new ArrayList<Time>();
+//	ArrayList<Length> lengths = new ArrayList<Length>();
+//	ArrayList<At> atList = new ArrayList<At>();
+//	ArrayList<Enrolled> enrollments = new ArrayList<Enrolled>();
+//	ArrayList<Assign> assigns = new ArrayList<Assign>();
 	
-	ArrayList<RoomAssign> roomAssigns = new ArrayList<RoomAssign>();
-	ArrayList<DayAssign> dayAssigns = new ArrayList<DayAssign>();
-	ArrayList<Time> times = new ArrayList<Time>();
-	ArrayList<Length> lengths = new ArrayList<Length>();
-	ArrayList<At> atList = new ArrayList<At>();
-	ArrayList<Enrolled> enrollments = new ArrayList<Enrolled>();
-	ArrayList<Assign> assigns = new ArrayList<Assign>();
+	private int softC1(){
+		// No student writes more than one exam in a timeslot (no direct conflict)
+		int penalty = 0;
+		for(Student stdnt : students){
+			if(stdnt.enrolled.size() > 1){
+				for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
+					for(Pair<Course,Lecture> enr2 : stdnt.enrolled){
+						if((enr1.getKey() != enr2.getKey()) || (enr1.getValue() != enr2.getValue())){
+// This can be optimized!							
+							for(Session ses1 : sessions){
+								if(ses1.assignment.contains(enr1)){
+									for(Session ses2 : sessions){
+										if(ses2.assignment.contains(enr2)){
+											if((ses1.day == ses2.day) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) < ses2.time)){
+												penalty += 100;
+											}//end-if
+										}//end-if
+									}//end-for
+								}//end-if
+							}//end-for
+						}//end-if
+					}//end-for
+				}//end-for				
+			}//end-if
+		}//end-for
+		return penalty;
+	}
+	private int softC2(){
+		// No instructor invigulates in more than one room at the same time (no direct conflict)
+		int penalty = 0;
+		for(Instructor I : instructors){
+			for(Pair<Course,Lecture> ins1 : I.instructs){
+				for(Pair<Course,Lecture> ins2 : I.instructs){
+					if((ins1.getKey() != ins2.getKey()) || (ins1.getValue() != ins2.getValue())){
+// This can be optimized!	
+						for(Session ses1 : sessions){
+							if(ses1.assignment.contains(ins1)){
+								for(Session ses2 : sessions){
+									if(ses2.assignment.contains(ins2)){
+										if((ses1.day == ses2.day) && (ses1.time <= ses2.time) && ((ins1.getValue().examLength + ses1.time) < ses2.time)){
+											penalty+=20;
+										}//end-if
+									}//end-if
+								}//end-for
+							}//end-if
+						}//end-for
+					}//end-if
+				}//end-for
+			}//end-for
+		}//end-for
+		return penalty;
+	}
+	private int softC3(){
+		// Every lecture for the same course should have the same exam timeslot
+		int penalty = 0;
+		for(Course crs : courses){
+			ArrayList<Pair<Course,Lecture>> CL = new ArrayList<Pair<Course,Lecture>>();
+			for(Lecture L : crs.lecture){
+				Pair<Course,Lecture> pair = new Pair<Course,Lecture>(crs,L);
+				CL.add(pair);
+			}//end-for
+			if(CL.size() > 1) {
+				for(Pair<Course,Lecture> CL1 : CL){
+					for(Pair<Course,Lecture> CL2 : CL){
+						if(!CL1.equals(CL2)){
+// This can be optimized!								
+							for(Session ses1 : sessions){
+								if(ses1.assignment.contains(CL1)){
+									for(Session ses2 : sessions){
+										if(ses2.assignment.contains(CL2)){
+											if((ses1.day == ses2.day) && (ses1.time == ses2.time)) {
+												penalty+=0;
+											}//end-if
+											else {
+												penalty+=50;
+											}
+										}//end-if
+									}//end-for
+								}//end-if
+							}//end-for
+						}//end-if
+					}//end-for
+				}//end-for
+			}//end-if
+		}//end-for
+		return penalty;
+	}
+	private int softC4(){
+		// No student writes for longer than 5 hours in a single day 
+		int penalty = 0;
+		for(Student stdnt : students){
+			if(stdnt.enrolled.size() > 1){
+				ArrayList<Pair<Session,Lecture>> set = new ArrayList<Pair<Session,Lecture>>();
+				for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
+					for(Session ses : sessions){
+						if(ses.assignment.contains(enr1)){
+							Pair<Session,Lecture> pair = new Pair<Session,Lecture>(ses,enr1.getValue());
+							set.add(pair);
+						}//end-if
+					}//end-for
+				}//end-for
+				for(Pair<Session,Lecture> ses1 : set){
+					long sum = ses1.getValue().examLength;
+					for(Pair<Session,Lecture> ses2 : set){
+						if(ses1.getKey().day == ses2.getKey().day){
+							sum += ses2.getValue().examLength;
+						}
+					}
+					if(sum > 5) {
+						penalty+=50;
+					}
+				}
+			}//end-if
+		}//end-for
+		return penalty;
+	}
+	private int softC5(){
+		// No student should write exams with no break between them 
+		int penalty = 0;
+		for(Student stdnt : students){
+			if(stdnt.enrolled.size() > 1){
+				for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
+					for(Pair<Course,Lecture> enr2 : stdnt.enrolled){
+						if((enr1.getKey() != enr2.getKey()) || (enr1.getValue() != enr2.getValue())){
+// This can be optimized!							
+							for(Session ses1 : sessions){
+								if(ses1.assignment.contains(enr1)){
+									for(Session ses2 : sessions){
+										if(ses2.assignment.contains(enr2)){
+											if((ses1.day == ses2.day) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) != ses2.time)){
+												penalty += 50;
+											}//end-if
+										}//end-if
+									}//end-for
+								}//end-if
+							}//end-for
+						}//end-if
+					}//end-for
+				}//end-for				
+			}//end-if
+		}//end-for
+		return penalty;
+	}
+	private int softC6(){
+		// All the exams taking place in a particular session should have the same length 
+		int penalty = 0;
+		for(Session S : sessions){
+			for(Pair<Course, Lecture> assign1 : S.assignment) {
+				for(Pair<Course, Lecture> assign2 : S.assignment) {
+					if(!assign1.equals(assign2)){
+						if(assign1.getValue().examLength != assign2.getValue().examLength){
+							penalty+=20;
+						}
+					}
+				}
+			}
+		}
+		return penalty;
+	}
+	private int softC7(){
+		// Every exam in a session should take up the full time of the session 
+		int penalty = 0;
+		for(Session S : sessions){
+			for(Pair<Course, Lecture> assign1 : S.assignment) {
+				if(assign1.getValue().examLength != S.sessionLength){
+					penalty+=5;
+				}
+			}
+		}
+		return penalty;
+	}
+	
+	
 	
 	public Environment(String name) {
 		super(name);
@@ -54,7 +227,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_student(String p) {
-		if(e_student(p)){
+		if(!e_student(p)){
 			Student n = new Student(p); 
 			students.add(n);
 		}
@@ -63,18 +236,19 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public boolean e_student(String p) {
-		Student n = new Student(p);
-		if(students.contains(n)){
-			return false;
+		
+		for(int i = 0; i < students.size(); i++){
+			if(students.get(i).name == p)
+				return true;
 		}
-		//else{
-			return true;
-		//}
+		
+			return false;
+		
 	}
 
 	@Override
 	public void a_instructor(String p) {
-		if(e_instructor(p)){
+		if(!e_instructor(p)){
 			Instructor n = new Instructor(p); 
 			instructors.add(n);
 		}
@@ -82,18 +256,19 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public boolean e_instructor(String p) {
-		Instructor n = new Instructor(p); 
-		if(instructors.contains(n)){
+		
+		for(int i = 0; i < instructors.size(); i++){
+			if(instructors.get(i).name == p)
+				return true;
+		}
+		
 			return false;
-		}
-		else{
-			return true;
-		}
+		
 	}
 
 	@Override
 	public void a_room(String p) {
-		if(e_room(p)){
+		if(!e_room(p)){
 			Room n = new Room(p); 
 			rooms.add(n);
 		}
@@ -101,13 +276,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public boolean e_room(String p) {
-		Room n = new Room(p); 
-		if(rooms.contains(n)){
+		for(int i = 0; i < rooms.size(); i++){
+			if(rooms.get(i).room == p)
+				return true;
+		}
+		
 			return false;
-		}
-		else{
-			return true;
-		}
+		
 	}
 
 	@Override
