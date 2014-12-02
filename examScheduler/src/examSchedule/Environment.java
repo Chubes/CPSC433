@@ -344,8 +344,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			if(!e_course(c)){
 				a_course(c);
 			}
+			
 			Lecture n = new Lecture(c, lec);
 			lectures.add(n);
+			for(int i = 0; i < courses.size(); i++){
+				if(courses.get(i).name.equals(c))
+					courses.get(i).lecture.add(n);
+			}
 		}
 		
 		
@@ -353,8 +358,8 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public boolean e_lecture(String c, String lec) {
-		for(int i = 0; i < students.size(); i++){
-			if(students.get(i).name == p)
+		for(int i = 0; i < lectures.size(); i++){
+			if(lectures.get(i).name.equals(lec) && lectures.get(i).course.equals(c))
 				return true;
 		}
 		
