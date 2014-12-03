@@ -95,18 +95,7 @@ public class ExamSchedule {
 	 */
 	public static void doSearch(final EnvironmentInterface env, final String outFileName, final long timeLimit) {
 		//To be filled in as part of the assignment...
-		try {
-			PrintWriter out = new PrintWriter(outFileName);
-			
-			
-			
-			out.println(env.toString());
-			out.close();
-		
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		env.printOutput(outFileName);
 		System.out.println("No search currently implemented.");
 	}
 	

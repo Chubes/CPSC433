@@ -41,6 +41,17 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	// ArrayList<Enrolled> enrollments = new ArrayList<Enrolled>();
 	// ArrayList<Assign> assigns = new ArrayList<Assign>();
 
+	public int softConstraints(){
+		return softC1() + softC2() + softC3() + softC4() + softC5() + softC6() + softC7();
+	}
+	
+	public boolean hardConstraints(){
+		if((hardC1() && hardC2() && hardC3() && hardC4())){
+			return true;
+		}
+		return false;
+	}
+	
 	private int softC1() {
 		// S1: penalty=100/incident. No student writes more than one exam in a timeslot (no direct conflict)
 		// FORALL s:STUDENT, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ ENROLLED(s,c1,lec1) /\ ENROLLED(s,c2,lec2) .
@@ -357,12 +368,14 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return true;
 	}
 	
-	
-	
-
 	public Environment(String name) {
 		super(name);
-		// TODO Auto-generated constructor stub
+		students = new ArrayList<Student>();
+		instructors = new ArrayList<Instructor>();
+		rooms = new ArrayList<Room>();
+		courses = new ArrayList<Course>();
+		sessions = new ArrayList<Session>();
+		lectures = new ArrayList<Lecture>();
 	}
 
 	@Override
@@ -944,6 +957,21 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		}
 
 	}
+	
+	public void printOutput(String outFileName) {
+		try {
+			outFileName += ".out";
+			PrintWriter out = new PrintWriter(outFileName);
+			
+			//out.println(env.toString());
+			out.close();
+		
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 /*
 	@Override
 	public String toString() {
