@@ -47,15 +47,21 @@ public class Set {
 		}
 		
 		sortList(workingSet);
-		sortList(bestSet);
+		/*bestSet.
+		for(int i = 0, i < bestSetSize; i++){
+			bestSet.
+		}
+		sortList(bestSet);*/
+		
 	}
 
 	
 	public static Environment generateNew(Environment B){
 		Environment newGen = B.clone();
-		Random rnd = new Random();
+		
 	
 		do{
+			Random rnd = new Random();
 			ArrayList<Pair<Course,Lecture>> exams = getLec(B.courses);
 			ArrayList<Session> slots = B.sessions;
 			ArrayList<Session> temp = new ArrayList<Session>();
@@ -66,17 +72,31 @@ public class Set {
 				int r =rnd.nextInt(slots.size());
 				tmp = slots.get(r);
 				slots.remove(r);
-				
-				for(int i = 0; i < exams.size(); i++){
-					if(tmp.room.capacity - B.studentCount(exams.get(i)) >=0){
+				int i = 0;
+				do{
+					
+					System.out.println("hi");
+					
+					if((tmp.room.capacity - B.studentCount(exams.get(i))) >=0){
 						tmp.assignment.add(exams.get(i));
 						tmp.room.capacity -=  B.studentCount(exams.get(i));
 						exams.remove(i);
 					}
-				}
+					i++;
+					
+				}while(i< exams.size());
+				
+					
+					
+					
+						
+					
+					
+				
 				temp.add(tmp);
 			}
 			newGen.sessions = temp;
+			System.out.print( exams.size());
 		}while(!newGen.hardConstraints());
 		
 		return newGen;
