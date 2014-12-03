@@ -1008,7 +1008,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if (!e_capacity(r, cap)) {
 			for (int i = 0; i < rooms.size(); i++) {
 				if (rooms.get(i).room.equals(r)) {
-					rooms.get(i).capacity = cap;
+					rooms.get(i).capacity = rooms.get(i).remainCap = cap;
 					break;
 				}
 			}

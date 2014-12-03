@@ -57,13 +57,15 @@ public class Set {
 
 	
 	public static Environment generateNew(Environment B){
-		Environment newGen = B.clone();
 		
+		Environment newGen = new Environment("clone");
 	
 		do{
+			newGen = B.clone();
 			Random rnd = new Random();
 			ArrayList<Pair<Course,Lecture>> exams = getLec(B.courses);
-			ArrayList<Session> slots = B.sessions;
+			ArrayList<Session> slots = newGen.sessions;
+			System.out.println(slots.size());
 			ArrayList<Session> temp = new ArrayList<Session>();
 			Session tmp = null;
 			
@@ -73,30 +75,29 @@ public class Set {
 				tmp = slots.get(r);
 				slots.remove(r);
 				int i = 0;
-				do{
-					
+				
+				while(i< exams.size()){
+				
 					System.out.println("hi");
 					
-					if((tmp.room.capacity - B.studentCount(exams.get(i))) >=0){
+					if((tmp.room.remainCap - B.studentCount(exams.get(i))) >=0){
 						tmp.assignment.add(exams.get(i));
-						tmp.room.capacity -=  B.studentCount(exams.get(i));
+						tmp.room.remainCap -=  B.studentCount(exams.get(i));
 						exams.remove(i);
+						i--;
+					}
+					else{
+						
+						break;
 					}
 					i++;
 					
-				}while(i< exams.size());
-				
-					
-					
-					
-						
-					
-					
-				
+				};
+								
 				temp.add(tmp);
 			}
 			newGen.sessions = temp;
-			System.out.print( exams.size());
+		System.out.print( exams.size());
 		}while(!newGen.hardConstraints());
 		
 		return newGen;
