@@ -18,6 +18,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	ArrayList<Course> courses = new ArrayList<Course>();
 	ArrayList<Session> sessions = new ArrayList<Session>();
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
+	ArrayList<String> day = new ArrayList<String>();
 
 	public Environment clone(){
 		 Environment envClone = new Environment("clone");
@@ -497,14 +498,17 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_day(String p) {
-		if (p == null) {
-			System.out.println("bad Day fact");
+		if (!e_day(p)) {
+			day.add(p);
 		}
 	}
 
 	@Override
 	public boolean e_day(String p) {
-		// not important
+		for (int i = 0; i < day.size(); i++) {
+			if (day.get(i).equals(p))
+				return true;
+		}
 		return false;
 	}
 
@@ -736,6 +740,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_dayAssign(String p, String day) {
+		a_day(day);
 		if (!e_session(p)) {
 				a_session(p);
 			}
@@ -824,7 +829,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_at(String session, String day, Long time, Long length) {
-		
+			a_day(day);
 			if (!e_session(session)) {
 				a_session(session);
 			}
@@ -855,6 +860,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public void a_session(String session, String room, String day, Long time,
 			Long length) {
+		a_day(day);
 		if (!e_session(session, room, day, time, length)) {
 			if (!e_session(session)) {
 				a_session(session);
@@ -958,98 +964,6 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	}
 	
-	public void printOutput(String outFileName) {
-		try {
-			outFileName += ".out";
-			PrintWriter out = new PrintWriter(outFileName);
-			
-			//out.println(env.toString());
-			out.close();
-		
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-/*
-	@Override
-	public String toString() {
-
-		String instr = "";
-		instr += "//Instructors\n";
-		for (int i = 0; i < instructors.size(); i++) {
-			instr += instructors.get(i).toString() + "\n";
-		}
-		// out.println()
-		String std = "\n//Students " + students.size() + "\n";
-		for (int i = 0; i < students.size(); i++) {
-			std += students.get(i).toString() + "\n";
-		}
-		String rms = "\n//Rooms\n";
-		for (int i = 0; i < rooms.size(); i++) {
-			rms += rooms.get(i).toString() + "\n";
-		}
-		String crs = "\n//Courses\n";
-		for (int i = 0; i < courses.size(); i++) {
-			crs += courses.get(i).toString() + "\n";
-		}
-		String ds = "\n//Days\n";
-		for (int i = 0; i < days.size(); i++) {
-			ds += days.get(i).toString() + "\n";
-		}
-		String lecs = "\n//Lectures\n";
-		for (int i = 0; i < lectures.size(); i++) {
-			lecs += lectures.get(i).toString() + "\n";
-		}
-		String caps = "\n//Capacities\n";
-		for (int i = 0; i < capacities.size(); i++) {
-			caps += capacities.get(i).toString() + "\n";
-		}
-		String sess = "\n//Sessions\n";
-		for (int i = 0; i < sessions.size(); i++) {
-			sess += sessions.get(i).toString() + "\n";
-		}
-		String instrc = "\n//Instructs\n";
-		for (int i = 0; i < instructs.size(); i++) {
-			instrc += instructs.get(i).toString() + "\n";
-		}
-		String exms = "\n//Exams\n";
-		for (int i = 0; i < exams.size(); i++) {
-			exms += exams.get(i).toString() + "\n";
-		}
-		String rmas = "\n//Room Assigns\n";
-		for (int i = 0; i < roomAssigns.size(); i++) {
-			rmas += roomAssigns.get(i).toString() + "\n";
-		}
-		String dass = "\n//Day Assigns\n";
-		for (int i = 0; i < dayAssigns.size(); i++) {
-			dass += dayAssigns.get(i).toString() + "\n";
-		}
-		String t = "\n//Times\n";
-		for (int i = 0; i < times.size(); i++) {
-			t += times.get(i).toString() + "\n";
-		}
-		String lens = "\n//Lengths\n";
-		for (int i = 0; i < lengths.size(); i++) {
-			lens += lengths.get(i).toString() + "\n";
-		}
-		String ats = "\n//At\n";
-		for (int i = 0; i < atList.size(); i++) {
-			ats += atList.get(i).toString() + "\n";
-		}
-		String enrls = "\n//Enrolments\n";
-		for (int i = 0; i < enrollments.size(); i++) {
-			enrls += enrollments.get(i).toString() + "\n";
-		}
-		String assns = "\n//Assigns\n";
-		for (int i = 0; i < assigns.size(); i++) {
-			assns += assigns.get(i).toString() + "\n";
-		}
-		return instr + std + rms + crs + ds + lecs + caps + sess + instrc
-				+ exms + rmas + dass + t + lens + ats + enrls + assns;
-	}*/
-
 	@Override
 	public void a_capacity(String r, Long cap) {
 		if (!e_room(r)) {
@@ -1137,7 +1051,137 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		}
 		return false;
 	}
-
+	
+	public void printOutput(String outFileName) {
+		try {
+			outFileName += ".out";
+			PrintWriter out = new PrintWriter(outFileName);
+			
+			String instr = "//Instructors\n";
+			for (int i = 0; i < instructors.size(); i++) {
+				instr += "instructor("+ instructors.get(i).name + ")\n";
+			}
+			out.println(instr);
+			
+			String stdnts = "//Students\n";
+			for (int i = 0; i < students.size(); i++) {
+				stdnts += "student("+ students.get(i).name + ")\n";
+			}
+			out.println(stdnts);
+			
+			String rms = "//Rooms\n";
+			for (int i = 0; i < rooms.size(); i++) {
+				rms += "room("+ rooms.get(i).room + ")\n";
+			}
+			out.println(rms);
+			
+			String crs = "//Courses\n";
+			for (int i = 0; i < courses.size(); i++) {
+				crs += "course("+ courses.get(i).name + ")\n";
+			}
+			out.println(crs);
+			
+			String ds = "//Days\n";
+			for (int i = 0; i < day.size(); i++) {
+				ds += "day("+ day.get(i) + ")\n";
+			}
+			out.println(ds);
+			
+			String lecs = "//Lectures\n";
+			for (int i = 0; i < lectures.size(); i++) {
+				lecs += "lecture("+ lectures.get(i).course + "," + lectures.get(i).name + ")\n";
+			}
+			out.println(lecs);
+			
+			String caps = "//Capacities\n";
+			for (int i = 0; i < rooms.size(); i++) {
+				caps += "capacity("+ rooms.get(i).room + ","+ rooms.get(i).capacity +")\n";
+			}
+			out.println(caps);
+			
+			String sess = "//Sessions\n";
+			for (int i = 0; i < sessions.size(); i++) {
+				sess += "session(" + sessions.get(i).name + ")\n";
+			}
+			out.println(sess);
+			
+			String instrct = "//Instructs\n";
+			for (int i = 0; i < instructors.size(); i++) {
+				String instructorName = instructors.get(i).name;
+				for(Pair<Course, Lecture> ins : instructors.get(i).instructs){
+					String crsName = ins.getKey().name;
+					String lecName = ins.getValue().name;
+					instrct += "instructs("+ instructorName + "," + crsName + "," + lecName+ ")\n";
+				}
+			}
+			out.println(instrct);
+			
+			String exms = "//Exams\n";
+			for (int i = 0; i < lectures.size(); i++) {
+				exms += "examLength("+ lectures.get(i).course + "," + lectures.get(i).name + "," + lectures.get(i).examLength + ")\n";
+			}
+			out.println(exms);
+			
+			String rmas = "//Room Assigns\n";
+			for (int i = 0; i < sessions.size(); i++) {
+				rmas += "roomAssign(" + sessions.get(i).name + "," + sessions.get(i).room.room + ")\n";
+			}
+			out.println(rmas);
+			
+			String dass = "\n//Day Assigns\n";
+			for (int i = 0; i < sessions.size(); i++) {
+				dass += "dayAssign(" + sessions.get(i).name + "," + sessions.get(i).day + ")\n";
+			}
+			out.println(dass);
+			
+			String t = "//Times\n";
+			for (int i = 0; i < sessions.size(); i++) {
+				t += "time(" + sessions.get(i).name + "," + sessions.get(i).time + ")\n";
+			}
+			out.println(t);
+			
+			String lens = "//Lengths\n";
+			for (int i = 0; i < sessions.size(); i++) {
+				lens += "length(" + sessions.get(i).name + "," + sessions.get(i).sessionLength + ")\n";
+			}
+			out.println(lens);
+			
+			String ats = "//At\n";
+			for (int i = 0; i < sessions.size(); i++) {
+				ats += "at(" + sessions.get(i).name + "," + sessions.get(i).day + "," + sessions.get(i).time +"," + sessions.get(i).sessionLength + ")\n";
+			}
+			out.println(ats);
+			
+			String enrls = "//Enrolments\n";
+			for (int i = 0; i < students.size(); i++) {
+				String studentName = students.get(i).name;
+				for(Pair<Course, Lecture> enr : students.get(i).enrolled){
+					String crsName = enr.getKey().name;
+					String lecName = enr.getValue().name;
+					enrls += "enrolled("+ studentName + "," + crsName + "," + lecName+ ")\n";
+				}
+			}
+			out.println(enrls);
+			/*
+			@Override
+			public String toString() {
+				String assns = "\n//Assigns\n";
+				for (int i = 0; i < assigns.size(); i++) {
+					assns += assigns.get(i).toString() + "\n";
+				}
+				return instr + std + rms + crs + ds + lecs + caps + sess + instrc
+						+ exms + rmas + dass + t + lens + ats + enrls + assns;
+			}*/
+			
+			//out.println(env.toString());
+			out.close();
+		
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	// calls the fromFile() declared in PredicateReader.java
 	public int fromFile(String fromFile) {
 
@@ -1146,7 +1190,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	}
 
 	// getter method used by main() in ExamSchedule.java
-	public static EnvironmentInterface get() {
+	public static Environment get() {
 		Environment singletonEnv = null;
 
 		if (singletonEnv == null) {
