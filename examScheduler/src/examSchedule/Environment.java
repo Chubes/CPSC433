@@ -15,7 +15,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	ArrayList<Student> students = new ArrayList<Student>();
 	ArrayList<Instructor> instructors = new ArrayList<Instructor>();
 	ArrayList<Room> rooms = new ArrayList<Room>();
-	ArrayList<Course> courses = new ArrayList<Course>();
+	public ArrayList<Course> courses = new ArrayList<Course>();
 	ArrayList<Session> sessions = new ArrayList<Session>();
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 	ArrayList<String> day = new ArrayList<String>();

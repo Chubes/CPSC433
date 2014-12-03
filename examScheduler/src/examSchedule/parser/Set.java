@@ -73,13 +73,15 @@ public static Environment generateNew(Environment base){
 }
 
 public static ArrayList<Pair<Course, Lecture>> getLec(ArrayList<Course> courses){
-	
+	ArrayList <Pair<Course, Lecture>> temp = new ArrayList<Pair<Course, Lecture>>();
 	for(int i = 0; i < courses.size(); i++){
-		
+		for(int j =0; j < courses.get(i).lecture.size(); j++){
+			temp.add(new Pair<Course, Lecture>(courses.get(i), courses.get(i).lecture.get(j)));
+		}
 	}
 			
 	
-	return null;
+	return temp;
 	
 }
 }
