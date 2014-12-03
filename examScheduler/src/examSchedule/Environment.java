@@ -649,9 +649,10 @@ public class Environment extends PredicateReader implements
 					for(int j =0; j < rooms.size(); j++){
 						if(rooms.get(j).room.equals(room)){
 							sessions.get(i).room = rooms.get(j);
+							break;
 						}
 					}
-					
+					break;
 				}
 			}
 		}
@@ -682,6 +683,7 @@ public class Environment extends PredicateReader implements
 			for(int i = 0; i < sessions.size(); i++){
 				if(sessions.get(i).name.equals(p)){
 					sessions.get(i).day = day;
+					break;
 				}
 			}
 					
@@ -709,6 +711,7 @@ public class Environment extends PredicateReader implements
 			for(int i = 0; i < sessions.size(); i++){
 				if(sessions.get(i).name.equals(p)){
 					sessions.get(i).time = time;
+					break;
 				}
 			}
 			
@@ -729,47 +732,61 @@ public class Environment extends PredicateReader implements
 
 	@Override
 	public void a_length(String p, Long length) {
-		if (e_length(p, length)) {
-			if (e_session(p)) {
+		if (!e_session(p)) {
 				a_session(p);
 			}
-			Length n = new Length(p, length);
-			lengths.add(n);
+		if (!e_length(p, length)) {
+			
+			for(int i = 0; i < sessions.size(); i++){
+				if(sessions.get(i).name.equals(p)){
+					sessions.get(i).sessionLength = length;
+					break;
+				}
+			}
+			
 		}
+		
 	}
 
 	@Override
 	public boolean e_length(String p, Long length) {
-		Length n = new Length(p, length);
-		if (lengths.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for(int i = 0; i < sessions.size(); i++){
+			if(sessions.get(i).name.equals(p)){
+				if(sessions.get(i).sessionLength == length){
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public void a_at(String session, String day, Long time, Long length) {
-		if (e_at(session, day, time, length)) {
-			if (e_session(session)) {
+		if (!e_at(session, day, time, length)) {
+			if (!e_session(session)) {
 				a_session(session);
 			}
-			if (e_day(day)) {
-				a_day(day);
+			for(int i = 0; i < sessions.size(); i++){
+				if(sessions.get(i).name.equals(p)){
+					sessions.get(i).day = day;
+					sessions.get(i).time = time;
+					sessions.get(i).sessionLength = length;
+					break;
+				}
 			}
-			At n = new At(session, day, time, length);
-			atList.add(n);
 		}
 	}
 
 	@Override
 	public boolean e_at(String session, String day, Long time, Long length) {
-		At n = new At(session, day, time, length);
-		if (atList.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for(int i = 0; i < sessions.size(); i++){
+			if(sessions.get(i).name.equals(p)){
+				if(sessions.get(i).day.equals(day) && sessions.get(i).time == time && sessions.get(i).sessionLength == length){
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
