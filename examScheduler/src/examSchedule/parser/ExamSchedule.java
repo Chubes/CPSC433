@@ -40,7 +40,7 @@ public class ExamSchedule {
 	 */
 	public static void main(String[] args) {
 
-		final EnvironmentInterface env = Environment.get();
+		final Environment env = Environment.get();
 
 		//long startTime = System.currentTimeMillis();
 
@@ -62,7 +62,7 @@ public class ExamSchedule {
 			// let's assume it's a time in milliseconds: we'll do a search on it.
 			try {
 				long timeLimit = new Long(args[1]).longValue();
-        doSearch(env, fromFile + ".out", timeLimit);
+        doSearch(env, fromFile, timeLimit);
 			}
 			// not a time, so it must be a filename to read a solution to evaluate from...
 			catch (NumberFormatException ex) {
@@ -94,9 +94,10 @@ public class ExamSchedule {
 	 * @param timeLimit The number of milliseconds to limit he search to.
 	 */
 	public static void doSearch(final EnvironmentInterface env, final String outFileName, final long timeLimit) {
-		//To be filled in as part of the assignment...
 		env.printOutput(outFileName);
-		System.out.println("No search currently implemented.");
+		Set set = new Set(env, timeLimit, outFileName);
+		
+		//System.out.println("No search currently implemented.");
 	}
 	
 	/**
@@ -119,7 +120,7 @@ public class ExamSchedule {
 			while ((length=System.in.read(buf))!=-1) {
 				String s = new String(buf,0,length);
 				s = s.trim();
-				if (s.equals("exit")) break;
+				if (s.equals("e xit")) break;
 				if (s.equals("?")||s.equals("help")) {
 					s = "!help()";
 					System.out.println("> !help()");
