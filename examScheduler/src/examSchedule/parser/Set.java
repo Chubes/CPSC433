@@ -66,8 +66,10 @@ public static Environment generateNew(Environment base){
 	Environment newgenerate = base.clone();
 	Random rnd = new Random();
 	
-	ArrayList<Pair<Course,Lecture>> available = getLec(base.courses);
+	ArrayList<Pair<Course,Lecture>> exams = getLec(base.courses);
 	
+	ArrayList<Session> timeslots = new base.sessions
+	base.sessions.get((rnd.nextInt()%sessions.size())
 	
 	return newgenerate;
 	
