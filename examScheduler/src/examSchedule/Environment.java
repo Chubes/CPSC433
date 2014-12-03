@@ -594,7 +594,7 @@ public class Environment extends PredicateReader implements
 			if (instructors.get(i).name.equals(p)) {
 				for(int j = 0; j < instructors.get(i).instructs.size(); j++){
 					if(instructors.get(i).instructs.get(j).getKey().name.equals(c) &&instructors.get(i).instructs.get(j).getValue().name.equals(l)){
-						
+						return true;
 					}
 				}
 			}
@@ -604,96 +604,127 @@ public class Environment extends PredicateReader implements
 
 	@Override
 	public void a_examLength(String c, String lec, Long hours) {
-		if (e_examLength(c, lec, hours)) {
-			if (e_course(c)) {
+		if (!e_examLength(c, lec, hours)) {
+			if (!e_course(c)) {
 				a_course(c);
 			}
-			if (e_lecture(c, lec)) {
+			if (!e_lecture(c, lec)) {
 				a_lecture(c, lec);
 			}
-			ExamLength n = new ExamLength(c, lec, hours);
-			exams.add(n);
+			for(int i = 0; i < lectures.size(); i++){
+				if(lectures.get(i).course.equals(c)){
+					lectures.get(i).examLength = hours;
+					break;
+				}
+					
+			}
 		}
 	}
 
 	@Override
 	public boolean e_examLength(String c, String lec, Long hours) {
-		ExamLength n = new ExamLength(c, lec, hours);
-		if (exams.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for(int i = 0; i < lectures.size(); i++){
+			if(lectures.get(i).course.equals(c)){
+				if(lectures.get(i).examLength == hours){
+					return true;
+				}
+				
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public void a_roomAssign(String p, String room) {
-		if (e_roomAssign(p, room)) {
-			if (e_session(p)) {
+		if (!e_session(p)) {
 				a_session(p);
 			}
-			if (e_room(room)) {
+			if (!e_room(room)) {
 				a_room(room);
 			}
-			RoomAssign n = new RoomAssign(p, room);
-			roomAssigns.add(n);
+			if (!e_roomAssign(p, room)) {
+			
+			for(int i = 0; i < sessions.size(); i++){
+				if(sessions.get(i).name.equals(p)){
+					for(int j =0; j < rooms.size(); j++){
+						if(rooms.get(j).room.equals(room)){
+							sessions.get(i).room = rooms.get(j);
+						}
+					}
+					
+				}
+			}
 		}
 
 	}
 
 	@Override
 	public boolean e_roomAssign(String p, String room) {
-		RoomAssign n = new RoomAssign(p, room);
-		if (roomAssigns.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for(int i = 0; i < sessions.size(); i++){
+			if(sessions.get(i).name.equals(p)){
+				if(sessions.get(i).room.room.equals(room)){
+					return true;
+				}
+			}
 		}
+		return false;
 	}
+		
 
 	@Override
 	public void a_dayAssign(String p, String day) {
-		if (e_dayAssign(p, day)) {
-			if (e_session(p)) {
+		if (!e_session(p)) {
 				a_session(p);
 			}
-			if (e_day(day)) {
-				a_day(day);
+		if (!e_dayAssign(p, day)) {
+			
+			
+			for(int i = 0; i < sessions.size(); i++){
+				if(sessions.get(i).name.equals(p)){
+					sessions.get(i).day = day;
+				}
 			}
-			DayAssign n = new DayAssign(p, day);
-			dayAssigns.add(n);
+					
 		}
 	}
 
 	@Override
 	public boolean e_dayAssign(String p, String day) {
-		DayAssign n = new DayAssign(p, day);
-		if (dayAssigns.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for(int i = 0; i < sessions.size(); i++){
+			if(sessions.get(i).name.equals(p)){
+				if(sessions.get(i).day.equals(day)){
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public void a_time(String p, Long time) {
-		if (e_time(p, time)) {
-			if (e_session(p)) {
+		if (!e_session(p)) {
 				a_session(p);
 			}
-			Time n = new Time(p, time);
-			times.add(n);
+		if (!e_time(p, time)) {
+			for(int i = 0; i < sessions.size(); i++){
+				if(sessions.get(i).name.equals(p)){
+					sessions.get(i).time = time;
+				}
+			}
+			
 		}
 	}
 
 	@Override
 	public boolean e_time(String p, Long time) {
-		Time n = new Time(p, time);
-		if (times.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for(int i = 0; i < sessions.size(); i++){
+			if(sessions.get(i).name.equals(p)){
+				if(sessions.get(i).time == time){
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
