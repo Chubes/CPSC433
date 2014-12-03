@@ -35,13 +35,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			if(stdnt.enrolled.size() > 1){
 				for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
 					for(Pair<Course,Lecture> enr2 : stdnt.enrolled){
-						if((enr1.getKey() != enr2.getKey()) || (enr1.getValue() != enr2.getValue())){
+						if(!enr1.getKey().equals(enr2.getKey()) || !enr1.getValue().equals(enr2.getValue())){
 // This can be optimized!							
 							for(Session ses1 : sessions){
 								if(ses1.assignment.contains(enr1)){
 									for(Session ses2 : sessions){
 										if(ses2.assignment.contains(enr2)){
-											if((ses1.day == ses2.day) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) < ses2.time)){
+											if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) < ses2.time)){
 												penalty += 100;
 											}//end-if
 										}//end-if
@@ -61,13 +61,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		for(Instructor I : instructors){
 			for(Pair<Course,Lecture> ins1 : I.instructs){
 				for(Pair<Course,Lecture> ins2 : I.instructs){
-					if((ins1.getKey() != ins2.getKey()) || (ins1.getValue() != ins2.getValue())){
+					if(!ins1.getKey().equals(ins2.getKey()) || !ins1.getValue().equals(ins2.getValue())){
 // This can be optimized!	
 						for(Session ses1 : sessions){
 							if(ses1.assignment.contains(ins1)){
 								for(Session ses2 : sessions){
 									if(ses2.assignment.contains(ins2)){
-										if((ses1.day == ses2.day) && (ses1.time <= ses2.time) && ((ins1.getValue().examLength + ses1.time) < ses2.time)){
+										if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((ins1.getValue().examLength + ses1.time) < ses2.time)){
 											penalty+=20;
 										}//end-if
 									}//end-if
@@ -92,13 +92,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			if(CL.size() > 1) {
 				for(Pair<Course,Lecture> CL1 : CL){
 					for(Pair<Course,Lecture> CL2 : CL){
-						if(!CL1.equals(CL2)){
+						if(!CL1.getKey().equals(CL2.getKey()) || !CL1.getValue().equals(CL2.getValue())){
 // This can be optimized!								
 							for(Session ses1 : sessions){
 								if(ses1.assignment.contains(CL1)){
 									for(Session ses2 : sessions){
 										if(ses2.assignment.contains(CL2)){
-											if((ses1.day == ses2.day) && (ses1.time == ses2.time)) {
+											if((ses1.day.equals(ses2.day)) && (ses1.time == ses2.time)) {
 												penalty+=0;
 											}//end-if
 											else {
@@ -132,7 +132,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 				for(Pair<Session,Lecture> ses1 : set){
 					long sum = ses1.getValue().examLength;
 					for(Pair<Session,Lecture> ses2 : set){
-						if(ses1.getKey().day == ses2.getKey().day){
+						if(ses1.getKey().day.equals(ses2.getKey().day)){
 							sum += ses2.getValue().examLength;
 						}
 					}
@@ -151,13 +151,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			if(stdnt.enrolled.size() > 1){
 				for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
 					for(Pair<Course,Lecture> enr2 : stdnt.enrolled){
-						if((enr1.getKey() != enr2.getKey()) || (enr1.getValue() != enr2.getValue())){
+						if(!enr1.getKey().equals(enr2.getKey()) || !enr1.getValue().equals(enr2.getValue())){
 // This can be optimized!							
 							for(Session ses1 : sessions){
 								if(ses1.assignment.contains(enr1)){
 									for(Session ses2 : sessions){
 										if(ses2.assignment.contains(enr2)){
-											if((ses1.day == ses2.day) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) != ses2.time)){
+											if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) != ses2.time)){
 												penalty += 50;
 											}//end-if
 										}//end-if
@@ -177,7 +177,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		for(Session S : sessions){
 			for(Pair<Course, Lecture> assign1 : S.assignment) {
 				for(Pair<Course, Lecture> assign2 : S.assignment) {
-					if(!assign1.equals(assign2)){
+					if(!assign1.getKey().equals(assign2.getKey()) || !assign1.getValue().equals(assign2.getValue())){
 						if(assign1.getValue().examLength != assign2.getValue().examLength){
 							penalty+=20;
 						}
@@ -198,6 +198,41 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			}
 		}
 		return penalty;
+	}
+	
+	
+	
+	private boolean hardC3(){
+		// the number of students writing an exam in a particular exam session may not exceed the capacity of the room
+		for(Session S : sessions){
+			long capacity = S.room.capacity;
+			long counter = 0;
+			for(Pair<Course, Lecture> assign1 : S.assignment) {
+				for(Student stdnt : students){
+					for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
+						if(assign1.getKey().equals(enr1.getKey()) && assign1.getValue().equals(enr1.getValue())){
+							counter++;
+							if(counter > capacity){
+								return false;
+							}
+						}
+					}
+				}
+			}
+
+		}
+		return true;		
+	}
+	private boolean hardC4(){
+		// every lecture's required time must be less than the session length
+		for(Session S : sessions){
+			for(Pair<Course, Lecture> assign1 : S.assignment) {
+				if(assign1.getValue().examLength > S.sessionLength){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	
