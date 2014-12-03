@@ -64,19 +64,20 @@ public static void search(Environment kontrol){
 	
 public static Environment generateNew(Environment base){
 	Environment newgenerate = base.clone();
+	
 	Random rnd = new Random();
 	
+	do{
 	ArrayList<Pair<Course,Lecture>> exams = getLec(base.courses);
-	
 	ArrayList<Session> timeslots = base.sessions;
 	ArrayList<Session> temp = new ArrayList<Session>();
-	Session tmp;
+	Session tmp = null;
 	while(timeslots.size()>0){
 		int r =rnd.nextInt(timeslots.size());
 		tmp = timeslots.get(r);
 		timeslots.remove(r);
 		for(int i = 0; i < exams.size(); i++){
-			if(base.studentCount(exams.get(i)) - tmp.room.capacity >=0){
+			if(tmp.room.capacity - base.studentCount(exams.get(i)) >=0){
 				tmp.assignment.add(exams.get(i));
 				tmp.room.capacity -=  base.studentCount(exams.get(i));
 				exams.remove(i);
@@ -86,6 +87,8 @@ public static Environment generateNew(Environment base){
 		temp.add(tmp);
 	}
 	newgenerate.sessions = temp;
+	}
+	while(!newgenerate.hardConstraints());
 	return newgenerate;
 	
 	
