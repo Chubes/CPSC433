@@ -6,6 +6,7 @@ public class Room {
 	
 	public Room(String r){
 		room = r;
+		capacity = 0;
 	}
 
 }

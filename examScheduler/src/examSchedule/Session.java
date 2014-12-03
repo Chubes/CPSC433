@@ -17,6 +17,11 @@ public class Session {
 		name = n;
 //		lectures = new LinkedList<Lecture>();
 		assignment = new LinkedList<Pair<Course,Lecture>>();
+		day = "";
+		time = new Long(0);
+		sessionLength = new Long(0);
+		room = new Room("");
+			
 	}
 
 }

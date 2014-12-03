@@ -10,6 +10,8 @@ public class Lecture {
 	public Lecture(String l, String c){
 		name = l;
 		course = c;
+		instructor = "";
+		examLength = new Long(0);
 	}
 	public Lecture(String l, String c, String i, Long len){
 		name = l;
