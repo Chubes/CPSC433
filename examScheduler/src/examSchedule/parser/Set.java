@@ -68,9 +68,24 @@ public static Environment generateNew(Environment base){
 	
 	ArrayList<Pair<Course,Lecture>> exams = getLec(base.courses);
 	
-	ArrayList<Session> timeslots = new base.sessions
-	base.sessions.get((rnd.nextInt()%sessions.size())
-	
+	ArrayList<Session> timeslots = base.sessions;
+	ArrayList<Session> temp = new ArrayList<Session>();
+	Session tmp;
+	while(timeslots.size()>0){
+		int r =rnd.nextInt(timeslots.size());
+		tmp = timeslots.get(r);
+		timeslots.remove(r);
+		for(int i = 0; i < exams.size(); i++){
+			if(base.studentCount(exams.get(i)) - tmp.room.capacity >=0){
+				tmp.assignment.add(exams.get(i));
+				tmp.room.capacity -=  base.studentCount(exams.get(i));
+				exams.remove(i);
+			}
+			
+		}
+		temp.add(tmp);
+	}
+	newgenerate.sessions = temp;
 	return newgenerate;
 	
 	
