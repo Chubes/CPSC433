@@ -811,12 +811,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	@Override
 	public void a_at(String session, String day, Long time, Long length) {
-		if (!e_at(session, day, time, length)) {
+		
 			if (!e_session(session)) {
 				a_session(session);
 			}
+			if (!e_at(session, day, time, length)) {
 			for(int i = 0; i < sessions.size(); i++){
-				if(sessions.get(i).name.equals(p)){
+				if(sessions.get(i).name.equals(session)){
 					sessions.get(i).day = day;
 					sessions.get(i).time = time;
 					sessions.get(i).sessionLength = length;
@@ -829,7 +830,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public boolean e_at(String session, String day, Long time, Long length) {
 		for(int i = 0; i < sessions.size(); i++){
-			if(sessions.get(i).name.equals(p)){
+			if(sessions.get(i).name.equals(session)){
 				if(sessions.get(i).day.equals(day) && sessions.get(i).time == time && sessions.get(i).sessionLength == length){
 					return true;
 				}
@@ -841,60 +842,91 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public void a_session(String session, String room, String day, Long time,
 			Long length) {
-		if (e_session(session, room, day, time, length)) {
+		if (!e_session(session, room, day, time, length)) {
+			if (!e_session(session)) {
+				a_session(session);
+			}
 			if (e_room(room)) {
 				a_room(room);
 			}
-			if (e_day(day)) {
-				a_day(day);
-			}
-			Session n = new Session(session, room, day, time, length);
-			sessions.add(n);
+			a_roomAssign(session, room);
+			a_at(session, day, time, length);
+
 		}
 	}
 
 	@Override
 	public boolean e_session(String session, String room, String day,
 			Long time, Long length) {
-		Session n = new Session(session, room, day, time, length);
-		if (sessions.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for (int i = 0; i < sessions.size(); i++) {
+			if (sessions.get(i).name.equals(session)) {
+				if (sessions.get(i).room.room.equals(room)
+						&& sessions.get(i).day.equals(day)
+						&& sessions.get(i).time == time
+						&& sessions.get(i).sessionLength == length) {
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public void a_enrolled(String student, String c, String l) {
-		if (e_enrolled(student, c, l)) {
-			// Removed due to duplicate check in e_lecture -- Landon
-			/*
-			 * if(e_course(c)) { a_course(c); }
-			 */
-			if (e_lecture(c, l)) {
-				a_lecture(c, l);
-			}
-			if (e_student(student)) {
-				a_student(student);
+
+		if (e_lecture(c, l)) {
+			a_lecture(c, l);
+		}
+		if (e_student(student)) {
+			a_student(student);
+		}
+		if (!e_enrolled(student, c, l)) {
+			Course key = null;
+			Lecture value = null;
+			for (int i = 0; i < students.size(); i++) {
+				if (students.get(i).name.equals(student)) {
+					for (int j = 0; j < courses.size(); j++) {
+						if (courses.get(j).name.equals(c)) {
+							key = courses.get(j);
+							break;
+						}
+					}
+					if (key == null)
+						break;
+					for (int k = 0; k < key.lecture.size(); k++) {
+						if (key.lecture.get(k).name.equals(l)) {
+							value = key.lecture.get(k);
+							break;
+						}
+					}
+					Pair<Course, Lecture> pair = new Pair<Course, Lecture>(key,
+							value);
+					students.get(i).enrolled.add(pair);
+					break;
+				}
 			}
 
-			Enrolled n = new Enrolled(student, c, l);
-			enrollments.add(n);
 		}
+
 	}
 
 	@Override
 	public boolean e_enrolled(String student, String c, String l) {
-		Enrolled n = new Enrolled(student, c, l);
-		if (enrollments.contains(n)) {
-			return false;
-		} else {
-			return true;
+
+		for (int i = 0; i < students.size(); i++) {
+			if (students.get(i).name.equals(student)) {
+				for (int j = 0; j < students.get(i).enrolled.size(); j++) {
+					if (students.get(i).enrolled.get(j).getKey().name.equals(c)
+							&& students.get(i).enrolled.get(j).getValue().name
+									.equals(l)) {
+						return true;
+					}
+				}
+			}
 		}
+		return false;
 	}
 
-	// This section is incomplete. -- Landon
-	// trying to figure out how this works --Mike
 	@Override
 	public void a_enrolled(String student, Vector<Pair<ParamType, Object>> list) {
 		java.util.Iterator<Pair<ParamType, Object>> itr = list.iterator();
@@ -903,25 +935,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			Pair<ParamType, Object> lec = itr.next();
 			String course = (String) c.getValue();
 			String lecture = (String) lec.getValue();
-			if (e_enrolled(student, course, lecture)) {
 
-				if (e_course(course)) {
-					a_course(course);
-				}
-				if (e_lecture(course, lecture)) {
-					a_lecture(course, lecture);
-				}
-				if (e_student(student)) {
-					a_student(student);
-				}
-
-				Enrolled n = new Enrolled(student, course, lecture);
-				enrollments.add(n);
+			
+			
+			if (!e_enrolled(student, course, lecture)) {
+				a_enrolled(student, course, lecture);
 			}
 		}
 
 	}
-
+/*
 	@Override
 	public String toString() {
 
@@ -997,58 +1020,94 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		}
 		return instr + std + rms + crs + ds + lecs + caps + sess + instrc
 				+ exms + rmas + dass + t + lens + ats + enrls + assns;
-	}
+	}*/
 
 	@Override
 	public void a_capacity(String r, Long cap) {
-		if (e_capacity(r, cap)) {
-			if (e_room(r)) {
-				a_room(r);
+		if (!e_room(r)) {
+			a_room(r);
+		}
+		if (!e_capacity(r, cap)) {
+			for (int i = 0; i < rooms.size(); i++) {
+				if (rooms.get(i).room.equals(r)) {
+					rooms.get(i).capacity = cap;
+					break;
+				}
 			}
 
-			Capacity n = new Capacity(r, cap);
-			capacities.add(n);
 		}
 
 	}
 
 	@Override
 	public boolean e_capacity(String r, Long cap) {
-		Capacity n = new Capacity(r, cap);
-		if (capacities.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for (int i = 0; i < rooms.size(); i++) {
+			if (rooms.get(i).room.equals(r)) {
+				if (rooms.get(i).capacity == cap) {
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public void a_assign(String c, String lec, String session) {
-		if (e_assign(c, lec, session)) {
-			// Removed due to duplicate check in e_lecture -- Landon
-			/*
-			 * if(e_course(c)) { a_course(c); }
-			 */
-			if (e_lecture(c, lec)) {
-				a_lecture(c, lec);
-			}
-			if (e_session(session)) {
-				a_session(session);
+
+		// Removed due to duplicate check in e_lecture -- Landon
+		/*
+		 * if(e_course(c)) { a_course(c); }
+		 */
+		if (!e_lecture(c, lec)) {
+			a_lecture(c, lec);
+		}
+		if (!e_session(session)) {
+			a_session(session);
+		}
+		if (!e_assign(c, lec, session)) {
+			Course key = null;
+			Lecture value = null;
+			for (int i = 0; i < sessions.size(); i++) {
+				if (sessions.get(i).name.equals(session)) {
+					for (int j = 0; j < courses.size(); j++) {
+						if (courses.get(j).name.equals(c)) {
+							key = courses.get(j);
+							break;
+						}
+					}
+					if (key == null)
+						break;
+					for (int k = 0; k < key.lecture.size(); k++) {
+						if (key.lecture.get(k).name.equals(lec)) {
+							value = key.lecture.get(k);
+							break;
+						}
+					}
+					Pair<Course, Lecture> pair = new Pair<Course, Lecture>(key,
+							value);
+					sessions.get(i).assignment.add(pair);
+					break;
+				}
 			}
 
-			Assign n = new Assign(c, lec, session);
-			assigns.add(n);
 		}
+
 	}
 
 	@Override
 	public boolean e_assign(String c, String lec, String session) {
-		Assign n = new Assign(c, lec, session);
-		if (assigns.contains(n)) {
-			return false;
-		} else {
-			return true;
+		for (int i = 0; i < sessions.size(); i++) {
+			if (sessions.get(i).name.equals(session)) {
+				for (int j = 0; j < sessions.get(i).assignment.size(); j++) {
+					if (sessions.get(i).assignment.get(j).getKey().name.equals(c)
+							&& sessions.get(i).assignment.get(j).getValue().name
+									.equals(lec)) {
+						return true;
+					}
+				}
+			}
 		}
+		return false;
 	}
 
 	// calls the fromFile() declared in PredicateReader.java
