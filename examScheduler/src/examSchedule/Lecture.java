@@ -7,7 +7,7 @@ public class Lecture {
 	public String instructor;
 	public Long examLength;
 	
-	public Lecture(String l, String c){
+	public Lecture(String c, String l){
 		name = l;
 		course = c;
 		instructor = "";
