@@ -13,99 +13,96 @@ public class Set {
 	static LinkedList<Environment> workingSet;
 	static LinkedList<Environment> bestSet;
 	final long timeLimit;
-	
 
-
-
-
-
-
-
-	public Set(Environment env, long timeLimit, String outFile){
+	public Set(Environment env, long maxTime, String outFile){
 		
-		this.timeLimit = timeLimit;
+		this.timeLimit = maxTime;
 		long startTime = System.currentTimeMillis();
 		Environment kontrol = env;
 		
-		while ((System.currentTimeMillis() - startTime)< timeLimit ) {
+		while((System.currentTimeMillis() - startTime)< timeLimit ) {
+			search(kontrol);
+			long elapsedTime = (System.currentTimeMillis() - startTime);
+			System.out.println("TIME PASSED: " +elapsedTime);
 			 
-			 search(kontrol);
-			 long elapsedTime = (System.currentTimeMillis() - startTime);
-			 System.out.println("TIME PASSED: " +elapsedTime);
-			 
-		 }
-		 
-		 System.out.println("DONE");
+		}
+		System.out.println("DONE");
 		 
 		 bestSet.get(0).printOutput(outFile);
-	 }
+	}
 	
-public static void search(Environment kontrol){
-		
-		// temp holder for the next set
-		LinkedList<Environment> tempSet = new LinkedList<Environment>();
-		
-		
-		// ext fill ( seed for the first iteration )
+	
+	public static void search(Environment kontrol){
+		// placeholder for the next set
+		LinkedList<Environment> tempEnvSet = new LinkedList<Environment>();
+	
+		// ext fill (seed for the first iteration )
 		while(workingSet.size() < workingSetSize){
-			Environment candidate = generateNew(kontrol);
-			if(candidate != null){
-				workingSet.add(candidate);
+			Environment E = generateNew(kontrol);
+			if(E != null){
+				workingSet.add(E);
 			}
 		}
 		
-		
-		orderList(workingSet);
-		orderList(bestSet);
-		
-		
-		
+		sortList(workingSet);
+		sortList(bestSet);
 	}
-	
-public static Environment generateNew(Environment base){
-	Environment newgenerate = base.clone();
-	
-	Random rnd = new Random();
-	
-	do{
-	ArrayList<Pair<Course,Lecture>> exams = getLec(base.courses);
-	ArrayList<Session> timeslots = base.sessions;
-	ArrayList<Session> temp = new ArrayList<Session>();
-	Session tmp = null;
-	while(timeslots.size()>0){
-		int r =rnd.nextInt(timeslots.size());
-		tmp = timeslots.get(r);
-		timeslots.remove(r);
-		for(int i = 0; i < exams.size(); i++){
-			if(tmp.room.capacity - base.studentCount(exams.get(i)) >=0){
-				tmp.assignment.add(exams.get(i));
-				tmp.room.capacity -=  base.studentCount(exams.get(i));
-				exams.remove(i);
-			}
-			
-		}
-		temp.add(tmp);
-	}
-	newgenerate.sessions = temp;
-	}
-	while(!newgenerate.hardConstraints());
-	return newgenerate;
-	
-	
-	
-}
 
-public static ArrayList<Pair<Course, Lecture>> getLec(ArrayList<Course> courses){
-	ArrayList <Pair<Course, Lecture>> temp = new ArrayList<Pair<Course, Lecture>>();
-	for(int i = 0; i < courses.size(); i++){
-		for(int j =0; j < courses.get(i).lecture.size(); j++){
-			temp.add(new Pair<Course, Lecture>(courses.get(i), courses.get(i).lecture.get(j)));
+	
+	public static Environment generateNew(Environment B){
+		Environment newGen = B.clone();
+		Random rnd = new Random();
+	
+		do{
+			ArrayList<Pair<Course,Lecture>> exams = getLec(B.courses);
+			ArrayList<Session> slots = B.sessions;
+			ArrayList<Session> temp = new ArrayList<Session>();
+			Session tmp = null;
+			
+			while(slots.size()>0){
+				
+				int r =rnd.nextInt(slots.size());
+				tmp = slots.get(r);
+				slots.remove(r);
+				
+				for(int i = 0; i < exams.size(); i++){
+					if(tmp.room.capacity - B.studentCount(exams.get(i)) >=0){
+						tmp.assignment.add(exams.get(i));
+						tmp.room.capacity -=  B.studentCount(exams.get(i));
+						exams.remove(i);
+					}
+				}
+				temp.add(tmp);
+			}
+			newGen.sessions = temp;
+		}while(!newGen.hardConstraints());
+		
+		return newGen;
+	}
+
+	public static ArrayList<Pair<Course, Lecture>> getLec(ArrayList<Course> courses){
+		ArrayList <Pair<Course, Lecture>> examsList = new ArrayList<Pair<Course, Lecture>>();
+		for(int i = 0; i < courses.size(); i++){
+			for(int j =0; j < courses.get(i).lecture.size(); j++){
+				examsList.add(new Pair<Course, Lecture>(courses.get(i), courses.get(i).lecture.get(j)));
+			}
+		}
+		return examsList;
+	}
+	
+	
+	public static void sortList(LinkedList<Environment> list){
+		for( int i = 0 ; i < list.size() ; i++){
+			for( int j = i+1 ; j < list.size() ; j++){
+				if(list.get(i).softConstraints() > list.get(j).softConstraints()){
+					Environment swap = list.get(j);
+					list.set(j,list.get(i));
+					list.set(i,swap);			
+				}
+			}
 		}
 	}
-			
 	
-	return temp;
 	
-}
 }
 
