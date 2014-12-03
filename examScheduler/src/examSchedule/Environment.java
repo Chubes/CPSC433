@@ -42,11 +42,11 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	// ArrayList<Enrolled> enrollments = new ArrayList<Enrolled>();
 	// ArrayList<Assign> assigns = new ArrayList<Assign>();
 
-	public int studentCount(Course C, Lecture L){
+	public int studentCount(Pair<Course,Lecture> P){
 		int count = 0;
 		for(Student S : students){
 			for(Pair<Course,Lecture> enrl : S.enrolled){
-				if(enrl.getKey().equals(C) && enrl.getValue().equals(L)){
+				if(enrl.getKey().equals(P.getKey()) && enrl.getValue().equals(P.getValue())){
 					count++;
 				}
 			}
