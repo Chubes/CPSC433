@@ -6,7 +6,7 @@ public class Lecture {
 	public String course;
 	public String instructor;
 	public Long examLength;
-	//dafuq
+	
 	public Lecture(String c, String l){
 		name = l;
 		course = c;
