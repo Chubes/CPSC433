@@ -19,6 +19,8 @@ public class Set {
 		this.timeLimit = maxTime;
 		long startTime = System.currentTimeMillis();
 		Environment kontrol = env;
+		bestSet = new LinkedList<Environment>();
+		workingSet = new LinkedList<Environment>();
 		
 		while((System.currentTimeMillis() - startTime)< timeLimit ) {
 			search(kontrol);
