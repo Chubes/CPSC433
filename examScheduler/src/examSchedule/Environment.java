@@ -1162,18 +1162,18 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 				}
 			}
 			out.println(enrls);
-			/*
-			@Override
-			public String toString() {
-				String assns = "\n//Assigns\n";
-				for (int i = 0; i < assigns.size(); i++) {
-					assns += assigns.get(i).toString() + "\n";
-				}
-				return instr + std + rms + crs + ds + lecs + caps + sess + instrc
-						+ exms + rmas + dass + t + lens + ats + enrls + assns;
-			}*/
 			
-			//out.println(env.toString());
+			String assign = "//Assignments\n";
+			for (int i = 0; i < sessions.size(); i++) {
+				String sessionName = sessions.get(i).name;
+				for(Pair<Course, Lecture> asgn : sessions.get(i).assignment){
+					String crsName = asgn.getKey().name;
+					String lecName = asgn.getValue().name;
+					assign += "assign("+ crsName + "," + lecName + "," + sessionName +")\n";
+				}
+			}
+			out.println(assign);
+			
 			out.close();
 		
 		} catch (FileNotFoundException e) {
