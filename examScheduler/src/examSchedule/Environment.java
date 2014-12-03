@@ -10,8 +10,8 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 import examSchedule.parser.*;
 import examSchedule.parser.Predicate.ParamType;
 
-public class Environment extends PredicateReader implements
-		ExamSchedulePredicates, EnvironmentInterface {
+public class Environment extends PredicateReader implements ExamSchedulePredicates, EnvironmentInterface {
+
 	ArrayList<Student> students = new ArrayList<Student>();
 	ArrayList<Instructor> instructors = new ArrayList<Instructor>();
 	ArrayList<Room> rooms = new ArrayList<Room>();
@@ -19,6 +19,16 @@ public class Environment extends PredicateReader implements
 	ArrayList<Session> sessions = new ArrayList<Session>();
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 
+	public Environment clone(){
+		 Environment envClone = new Environment("clone");
+		 envClone.students = (ArrayList<Student>)students.clone();
+		 envClone.instructors = (ArrayList<Instructor>)instructors.clone();
+		 envClone.rooms = (ArrayList<Room>)rooms.clone();
+		 envClone.courses = (ArrayList<Course>)courses.clone();
+		 envClone.sessions = (ArrayList<Session>)sessions.clone();
+		 envClone.lectures = (ArrayList<Lecture>)lectures.clone();
+		 return envClone; 
+	 }
 	// ArrayList<Day> days = new ArrayList<Day>();
 	// ArrayList<Instructs> instructs = new ArrayList<Instructs>();
 	// ArrayList<Capacity> capacities = new ArrayList<Capacity>();
@@ -32,26 +42,31 @@ public class Environment extends PredicateReader implements
 	// ArrayList<Assign> assigns = new ArrayList<Assign>();
 
 	private int softC1() {
-		// No student writes more than one exam in a timeslot (no direct
-		// conflict)
+		// S1: penalty=100/incident. No student writes more than one exam in a timeslot (no direct conflict)
+		// FORALL s:STUDENT, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ ENROLLED(s,c1,lec1) /\ ENROLLED(s,c2,lec2) .
+		//  FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
+		//   EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) . 
+		//    t1+i < t2 
 		int penalty = 0;
-
 		for(Student stdnt : students){
 			if(stdnt.enrolled.size() > 1){
 				for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
 					for(Pair<Course,Lecture> enr2 : stdnt.enrolled){
 						if(!enr1.getKey().equals(enr2.getKey()) || !enr1.getValue().equals(enr2.getValue())){
-// This can be optimized!							
 							for(Session ses1 : sessions){
-								if(ses1.assignment.contains(enr1)){
-									for(Session ses2 : sessions){
-										if(ses2.assignment.contains(enr2)){
-											if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) < ses2.time)){
-												penalty += 100;
+								for(Pair<Course,Lecture> assign1 : ses1.assignment){
+									if(assign1.getKey().equals(enr1.getKey()) && assign1.getValue().equals(enr1.getValue())){
+										for(Session ses2 : sessions){
+											for(Pair<Course,Lecture> assign2 : ses2.assignment){
+												if(assign2.getKey().equals(enr2.getKey()) && assign2.getValue().equals(enr2.getValue())){
+													if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) < ses2.time)){
+														penalty += 100;
+													}// end-if
+												}// end-if
 											}// end-if
-										}// end-if
-									}// end-for
-								}// end-if
+										}// end-for									
+									}// end-if
+								}// end-for
 							}// end-for
 						}// end-if
 					}// end-for
@@ -62,25 +77,31 @@ public class Environment extends PredicateReader implements
 	}
 
 	private int softC2() {
-		// No instructor invigulates in more than one room at the same time (no
-		// direct conflict)
+		//S2: penalty=20/incident. No instructor invigulates in more than one room at the same time (no direct conflict)
+		// FORALL s:INSTRUCTOR, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ INSTRUCTS(s,c1,lec1) /\ INSTRUCTS(s,c2,lec2) .
+		//  FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
+		//   EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) .
+		//    (t1+i < t2) => ses1=ses2 
 		int penalty = 0;
 		for(Instructor I : instructors){
 			for(Pair<Course,Lecture> ins1 : I.instructs){
 				for(Pair<Course,Lecture> ins2 : I.instructs){
 					if(!ins1.getKey().equals(ins2.getKey()) || !ins1.getValue().equals(ins2.getValue())){
-// This can be optimized!	
 						for(Session ses1 : sessions){
-							if(ses1.assignment.contains(ins1)){
-								for(Session ses2 : sessions){
-									if(ses2.assignment.contains(ins2)){
-										if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((ins1.getValue().examLength + ses1.time) < ses2.time)){
-											penalty+=20;
-										}//end-if
-									}//end-if
-								}//end-for
-							}//end-if
-						}//end-for
+							for(Pair<Course,Lecture> assign1 : ses1.assignment){
+								if(assign1.getKey().equals(ins1.getKey()) && assign1.getValue().equals(ins1.getValue())){
+									for(Session ses2 : sessions){
+										for(Pair<Course,Lecture> assign2 : ses2.assignment){
+											if(assign2.getKey().equals(ins2.getKey()) && assign2.getValue().equals(ins2.getValue())){
+												if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((ins1.getValue().examLength + ses1.time) < ses2.time)){
+													penalty+=20;
+												}//end-if
+											}// end-if
+										}// end-if
+									}// end-for									
+								}// end-if
+							}// end-for
+						}// end-for
 					}//end-if
 				}//end-for
 			}//end-for
@@ -90,7 +111,11 @@ public class Environment extends PredicateReader implements
 	}
 
 	private int softC3() {
-		// Every lecture for the same course should have the same exam timeslot
+		//S3: penalty=50/incident. Every lecture for the same course should have the same exam timeslot
+		// FORALL c:COURSE .
+		//  EXISTS1 day:Day, time:int .
+		//   FORALL lec:LECTURE, ses:SESSION | LECTURE(c,lec) /\ ASSIGN(c,lec,ses) .
+		//    AT(ses,day,time,?) 
 		int penalty = 0;
 		for (Course crs : courses) {
 			ArrayList<Pair<Course, Lecture>> CL = new ArrayList<Pair<Course, Lecture>>();
@@ -102,21 +127,24 @@ public class Environment extends PredicateReader implements
 				for(Pair<Course,Lecture> CL1 : CL){
 					for(Pair<Course,Lecture> CL2 : CL){
 						if(!CL1.getKey().equals(CL2.getKey()) || !CL1.getValue().equals(CL2.getValue())){
-// This can be optimized!								
 							for(Session ses1 : sessions){
-								if(ses1.assignment.contains(CL1)){
-									for(Session ses2 : sessions){
-										if(ses2.assignment.contains(CL2)){
-											if((ses1.day.equals(ses2.day)) && (ses1.time == ses2.time)) {
-												penalty+=0;
-											}//end-if
-											else {
-												penalty += 50;
-											}
-										}// end-if
-									}// end-for
-								}// end-if
-							}// end-for
+								for(Pair<Course,Lecture> assign1 : ses1.assignment){
+									if(assign1.getKey().equals(CL1.getKey()) && assign1.getValue().equals(CL1.getValue())){
+										for(Session ses2 : sessions){
+											for(Pair<Course,Lecture> assign2 : ses2.assignment){
+												if(assign2.getKey().equals(CL2.getKey()) && assign2.getValue().equals(CL2.getValue())){
+													if((ses1.day.equals(ses2.day)) && (ses1.time == ses2.time)) {
+														penalty+=0;
+													}//end-if
+													else {
+														penalty += 50;
+													}
+												}// end-if
+											}// end-if
+										}// end-for									
+									}// end-if
+								}// end-for
+							}
 						}// end-if
 					}// end-for
 				}// end-for
@@ -126,18 +154,24 @@ public class Environment extends PredicateReader implements
 	}
 
 	private int softC4() {
-		// No student writes for longer than 5 hours in a single day
+		//S4: penalty=50/incident. No student writes for longer than 5 hours in a single day
+		// FORALL s:STUDENT .
+		//  FORALL d:DAY .
+		//   (SUM i:int | (FORALL c:COURSE, lec:LECTURE, ses:SESSION | ENROLLED(s,c,lec) /\ ASSIGN(c,lec,ses) .       
+		//    dayAssign(ses,d)) . 
+		//     EXAMLENGTH(lec,i)) <= 5 
 		int penalty = 0;
 		for (Student stdnt : students) {
 			if (stdnt.enrolled.size() > 1) {
 				ArrayList<Pair<Session, Lecture>> set = new ArrayList<Pair<Session, Lecture>>();
 				for (Pair<Course, Lecture> enr1 : stdnt.enrolled) {
 					for (Session ses : sessions) {
-						if (ses.assignment.contains(enr1)) {
-							Pair<Session, Lecture> pair = new Pair<Session, Lecture>(
-									ses, enr1.getValue());
-							set.add(pair);
-						}// end-if
+						for(Pair<Course,Lecture> assign : ses.assignment){
+							if(assign.getKey().equals(enr1.getKey()) && assign.getValue().equals(enr1.getValue())){
+								Pair<Session, Lecture> pair = new Pair<Session, Lecture>(ses, enr1.getValue());
+								set.add(pair);
+							}
+						}
 					}// end-for
 				}// end-for
 				for (Pair<Session, Lecture> ses1 : set) {
@@ -157,25 +191,32 @@ public class Environment extends PredicateReader implements
 	}
 
 	private int softC5() {
-		// No student should write exams with no break between them
+		//S5: penalty=50/incident. No student should write exams with no break between them
+		// FORALL s:STUDENT, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ ENROLLED(s,c1,lec1) /\ ENROLLED(s,c2,lec2) .
+		//  FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
+		//   EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) .
+		//    t1+i /= t2 
 		int penalty = 0;
 		for(Student stdnt : students){
 			if(stdnt.enrolled.size() > 1){
 				for(Pair<Course,Lecture> enr1 : stdnt.enrolled){
 					for(Pair<Course,Lecture> enr2 : stdnt.enrolled){
 						if(!enr1.getKey().equals(enr2.getKey()) || !enr1.getValue().equals(enr2.getValue())){
-// This can be optimized!							
 							for(Session ses1 : sessions){
-								if(ses1.assignment.contains(enr1)){
-									for(Session ses2 : sessions){
-										if(ses2.assignment.contains(enr2)){
-											if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) != ses2.time)){
-												penalty += 50;
+								for(Pair<Course,Lecture> assign1 : ses1.assignment){
+									if(assign1.getKey().equals(enr1.getKey()) && assign1.getValue().equals(enr1.getValue())){
+										for(Session ses2 : sessions){
+											for(Pair<Course,Lecture> assign2 : ses2.assignment){
+												if(assign2.getKey().equals(enr2.getKey()) && assign2.getValue().equals(enr2.getValue())){
+													if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) != ses2.time)){
+														penalty += 50;
+													}// end-if
+												}// end-if
 											}// end-if
-										}// end-if
-									}// end-for
-								}// end-if
-							}// end-for
+										}// end-for									
+									}// end-if
+								}// end-for
+							}
 						}// end-if
 					}// end-for
 				}// end-for
@@ -185,8 +226,10 @@ public class Environment extends PredicateReader implements
 	}
 
 	private int softC6() {
-		// All the exams taking place in a particular session should have the
-		// same length
+		//S6: penalty=20/session. All the exams taking place in a particular session should have the same length
+		// FORALL ses:SESSIONS .
+		//  EXISTS c1,c2: COURSE, lec1,lect1:LECTURE | ASSIGN(c1,lec1,ses) /\ ASSIGN(c2,lec2,ses) .
+		//   EXISTS i:int . EXAMLENGTH(lec1, i) /\ EXAMLENGTH(lect2,i)
 		int penalty = 0;
 		for(Session S : sessions){
 			for(Pair<Course, Lecture> assign1 : S.assignment) {
@@ -203,7 +246,10 @@ public class Environment extends PredicateReader implements
 	}
 
 	private int softC7() {
-		// Every exam in a session should take up the full time of the session
+		//S7: penalty=5/session. Every exam in a session should take up the full time of the session
+		// FORALL ses:SESSIONS .
+		//  EXISTS c: COURSE, lec:LECTURE | ASSIGN(c,lec,ses) .
+		//   EXISTS i:int . EXAMLENGTH(lec, i) /\ AT(ses,?,?,i)
 		int penalty = 0;
 		for (Session S : sessions) {
 			for (Pair<Course, Lecture> assign1 : S.assignment) {
@@ -215,68 +261,70 @@ public class Environment extends PredicateReader implements
 		return penalty;
 	}
 
-	//H1: every lecture is assigned an exam session (completeness) 
-		//FORALL c:COURSE, lec:LECTURE | LECTURE(c,lec) . EXISTS ses:SESSION . ASSIGN(c,lec,ses) 
-		private boolean H1(){
-			for(Course crs : courses){
-				ArrayList<Pair<Course,Lecture>> CL = new ArrayList<Pair<Course,Lecture>>();
-				for(Lecture L : crs.lecture){
-					Pair<Course,Lecture> pair = new Pair<Course,Lecture>(crs,L);
-					CL.add(pair);
-					
-					if(CL.size() > 1) {
-						for(Pair<Course,Lecture> CL1 : CL){
-							for(Session S : sessions){					
-								for(Pair<Course, Lecture> assign2 : S.assignment) {
-									if(CL1.equals(assign2)){
-											return false;
-									}		
-								}			
-							}
-						}	
-					}	
-				}
-			}
-			return true;
+	private boolean hardC1(){
+		//H1: every lecture is assigned an exam session (completeness) 
+		// FORALL c:COURSE, lec:LECTURE | LECTURE(c,lec) . 
+		//  EXISTS ses:SESSION . 
+		//   ASSIGN(c,lec,ses) 
+		ArrayList<Pair<Course, Lecture>> CL = new ArrayList<Pair<Course, Lecture>>();
+		ArrayList<Pair<Course, Lecture>> assigns = new ArrayList<Pair<Course, Lecture>>();
+		for (Course crs : courses) {
+			for (Lecture lec : crs.lecture) {
+				Pair<Course, Lecture> pair = new Pair<Course, Lecture>(crs, lec);
+				CL.add(pair);
+			}//end-for
+		}
+		for(Session ses : sessions){
+			for(Pair<Course, Lecture> assign : ses.assignment){
+				assigns.add(assign);
+			}//end-for
 		}
 		
-		//H2: no lecture is assigned more than one exam session
-		//FORALL c:COURSE, lec:LECTURE, ses1,ses2:SESSION | LECTURE(c,lec) . 
-		//(ASSIGN(lec,ses1) /\ ASSIGN(lec,ses2)) => ses1=ses2 
-		private boolean H2(){
-			for(Course crs : courses){
-				ArrayList<Pair<Course,Lecture>> CL = new ArrayList<Pair<Course,Lecture>>();
-				for(Lecture L : crs.lecture){
-					Pair<Course,Lecture> pair = new Pair<Course,Lecture>(crs,L);
-					CL.add(pair);
-			
-					if(CL.size() > 1) {
-						for(Pair<Course,Lecture> CL1 : CL){
-							for(Pair<Course,Lecture> CL2 : CL){
-								if(!CL1.equals(CL2)){
-											for(Session S : sessions){					
-												for(Pair<Course, Lecture> assign1 : S.assignment) {
-													for(Pair<Course, Lecture> assign2 : S.assignment) {
-														if (!assign1.equals(assign2)){
-															return false;
-															
-														}
-														
-													}
-												}
-											}
-								}
-							}	
-						}	
-					}										
+		boolean exists = false;
+		for(Pair<Course, Lecture> CL1 :CL){
+			exists = false;
+			for(Pair<Course, Lecture> A : assigns){
+				if(A.getKey().equals(CL1.getKey()) && A.getValue().equals(CL1.getValue())){
+					exists = true;
+					break;
 				}
-			}	
-			return true;
+			}
 		}
+		return exists;
+	}
+//Landon		
+	private boolean hardC2(){
+		//H2: no lecture is assigned more than one exam session
+		// FORALL c:COURSE, lec:LECTURE, ses1,ses2:SESSION | LECTURE(c,lec) . 
+		//  (ASSIGN(lec,ses1) /\ ASSIGN(lec,ses2)) => ses1=ses2
+		for(Course crs : courses) {
+			for(Lecture lec : crs.lecture){
+				for(Session ses1 : sessions){
+					for(Pair<Course, Lecture> assign1 : ses1.assignment){
+						if(assign1.getKey().equals(crs) && assign1.getValue().equals(lec)){
+							for(Session ses2 : sessions){
+								if(!ses1.equals(ses2)){
+									for(Pair<Course, Lecture> assign2 : ses2.assignment){
+										if(assign2.getKey().equals(crs) && assign2.getValue().equals(lec)){
+											return false;			
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
 	
 	
 	private boolean hardC3(){
-		// the number of students writing an exam in a particular exam session may not exceed the capacity of the room
+		//H3: the number of students writing an exam in a particular exam session may not exceed the capacity of the room
+		// FORALL ses:SESSION, r:ROOM | ROOMASSIGN(ses,r) .
+		//  EXISTS cap:int | CAPACITY(r,cap) .
+		//   #{s:STUDENT | FORALL c:COURSE, lec: LECTURE | ASSIGN(c,lec,ses) . ENROLLED(s,c,lec)} <= cap 
 		for(Session S : sessions){
 			long capacity = S.room.capacity;
 			long counter = 0;
@@ -292,12 +340,13 @@ public class Environment extends PredicateReader implements
 					}
 				}
 			}
-
 		}
 		return true;		
 	}
 	private boolean hardC4(){
-		// every lecture's required time must be less than the session length
+		//H4: every lecture's required time must be less than the session length
+		// FORALL ses:SESSION, c:COURSE, lec:LECTURE | ASSIGN(c,lec,ses) .
+		//  EXISTS slen, llen:int | AT(ses,?,?,slen) /\ EXAMLENGTH(c,lec,llen) . llen <= slen 
 		for(Session S : sessions){
 			for(Pair<Course, Lecture> assign1 : S.assignment) {
 				if(assign1.getValue().examLength > S.sessionLength){
@@ -1011,11 +1060,9 @@ public class Environment extends PredicateReader implements
 
 	// getter method used by main() in ExamSchedule.java
 	public static EnvironmentInterface get() {
-
 		Environment singletonEnv = null;
 
 		if (singletonEnv == null) {
-
 			singletonEnv = new Environment("test");
 		}
 
