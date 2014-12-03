@@ -1,4 +1,5 @@
 package examSchedule.parser;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -65,10 +66,21 @@ public static Environment generateNew(Environment base){
 	Environment newgenerate = base.clone();
 	Random rnd = new Random();
 	
-	ArrayList<Session> avaible = get(base.sessions);
-	
-	
+	ArrayList<Pair<Course,Lecture>> avaible = getPair(base.courses);
 	
 	
 	
 }
+
+public static ArrayList<Pair<Course, Lecture>> getLec(ArrayList<Course> courses){
+	
+	for(int i = 0; i < courses.size(); i++){
+		
+	}
+			
+	
+	return null;
+	
+}
+}
+
