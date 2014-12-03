@@ -322,8 +322,8 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			}//end-for
 		}
 		for(Session ses : sessions){
-			for(Pair<Course, Lecture> assign : ses.assignment){
-				assigns.add(assign);
+			for(Pair<Course, Lecture> assgn : ses.assignment){
+				assigns.add(assgn);
 			}//end-for
 		}
 		
@@ -412,6 +412,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		courses = new ArrayList<Course>();
 		sessions = new ArrayList<Session>();
 		lectures = new ArrayList<Lecture>();
+		day = new ArrayList<String>();
 	}
 
 	@Override
