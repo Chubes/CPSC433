@@ -12,13 +12,13 @@ import examSchedule.parser.Predicate.ParamType;
 
 public class Environment extends PredicateReader implements ExamSchedulePredicates, EnvironmentInterface {
 
-	ArrayList<Student> students = new ArrayList<Student>();
-	ArrayList<Instructor> instructors = new ArrayList<Instructor>();
-	ArrayList<Room> rooms = new ArrayList<Room>();
+	public ArrayList<Student> students = new ArrayList<Student>();
+	public ArrayList<Instructor> instructors = new ArrayList<Instructor>();
+	public ArrayList<Room> rooms = new ArrayList<Room>();
 	public ArrayList<Course> courses = new ArrayList<Course>();
-	ArrayList<Session> sessions = new ArrayList<Session>();
-	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
-	ArrayList<String> day = new ArrayList<String>();
+	public ArrayList<Session> sessions = new ArrayList<Session>();
+	public ArrayList<Lecture> lectures = new ArrayList<Lecture>();
+	public ArrayList<String> day = new ArrayList<String>();
 
 	public Environment clone(){
 		 Environment envClone = new Environment("clone");
@@ -42,6 +42,18 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	// ArrayList<Enrolled> enrollments = new ArrayList<Enrolled>();
 	// ArrayList<Assign> assigns = new ArrayList<Assign>();
 
+	public int studentCount(Course C, Lecture L){
+		int count = 0;
+		for(Student S : students){
+			for(Pair<Course,Lecture> enrl : S.enrolled){
+				if(enrl.getKey().equals(C) && enrl.getValue().equals(L)){
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
 	public int softConstraints(){
 		return softC1() + softC2() + softC3() + softC4() + softC5() + softC6() + softC7();
 	}
