@@ -59,11 +59,12 @@ public class Set {
 	public static Environment generateNew(Environment B){
 		
 		Environment newGen = new Environment("clone");
-	
+		newGen = B.clone();
+		
 		do{
-			newGen = B.clone();
+			
 			Random rnd = new Random();
-			ArrayList<Pair<Course,Lecture>> exams = getLec(B.courses);
+			ArrayList<Pair<Course,Lecture>> exams = getLec(newGen.courses);
 			ArrayList<Session> slots = newGen.sessions;
 			System.out.println(slots.size());
 			ArrayList<Session> temp = new ArrayList<Session>();
@@ -86,18 +87,16 @@ public class Set {
 						exams.remove(i);
 						i--;
 					}
-					else{
-						
-						break;
-					}
+					
 					i++;
 					
-				};
+				}
 								
 				temp.add(tmp);
 			}
 			newGen.sessions = temp;
 		System.out.print( exams.size());
+		newGen.printOutput("test.txt");
 		}while(!newGen.hardConstraints());
 		
 		return newGen;
