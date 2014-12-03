@@ -11,5 +11,11 @@ public class Lecture {
 		name = l;
 		course = c;
 	}
+	public Lecture(String l, String c, String i, Long len){
+		name = l;
+		course = c;
+		instructor = i;
+		examLength = len;
+	}
 
 }
