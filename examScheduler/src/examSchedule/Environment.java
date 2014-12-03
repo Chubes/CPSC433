@@ -893,10 +893,10 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	@Override
 	public void a_enrolled(String student, String c, String l) {
 
-		if (e_lecture(c, l)) {
+		if (!e_lecture(c, l)) {
 			a_lecture(c, l);
 		}
-		if (e_student(student)) {
+		if (!e_student(student)) {
 			a_student(student);
 		}
 		if (!e_enrolled(student, c, l)) {
