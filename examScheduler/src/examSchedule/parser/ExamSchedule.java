@@ -93,7 +93,7 @@ public class ExamSchedule {
 	 * @param outFileName The name of the file to output the solution to.
 	 * @param timeLimit The number of milliseconds to limit he search to.
 	 */
-	public static void doSearch(final EnvironmentInterface env, final String outFileName, final long timeLimit) {
+	public static void doSearch(final Environment env, final String outFileName, final long timeLimit) {
 		env.printOutput(outFileName);
 		Set set = new Set(env, timeLimit, outFileName);
 		

@@ -65,7 +65,7 @@ public static Environment generateNew(Environment base){
 	Environment newgenerate = base.clone();
 	Random rnd = new Random();
 	
-	ArrayList<Session> avaible = getAssigns(base.sessions);
+	ArrayList<Session> avaible = get(base.sessions);
 	
 	
 	
