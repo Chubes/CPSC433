@@ -1048,31 +1048,36 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		if (!e_assign(c, lec, session)) {
 			Course key = null;
 			Lecture value = null;
-			for (int i = 0; i < sessions.size(); i++) {
-				if (sessions.get(i).name.equals(session)) {
-					for (int j = 0; j < courses.size(); j++) {
-						if (courses.get(j).name.equals(c)) {
-							key = courses.get(j);
-							break;
-						}
-					}
-					if (key == null)
-						break;
-					for (int k = 0; k < key.lecture.size(); k++) {
-						if (key.lecture.get(k).name.equals(lec)) {
-							value = key.lecture.get(k);
-							break;
-						}
-					}
-					Pair<Course, Lecture> pair = new Pair<Course, Lecture>(key,
-							value);
-					sessions.get(i).assignment.add(pair);
+			for (int j = 0; j < courses.size(); j++) {
+				if (courses.get(j).name.equals(c)) {
+					key = courses.get(j);
 					break;
 				}
 			}
-
+			for (int k = 0; k < key.lecture.size(); k++) {
+				if (key.lecture.get(k).name.equals(lec)) {
+					value = key.lecture.get(k);
+					break;
+				}
+			}
+			Pair<Course, Lecture> pair = new Pair<Course, Lecture>(key, value);
+			
+			for (int i = 0; i < sessions.size(); i++) {
+				// Check for existence in another session and remove
+				if(sessions.get(i).assignment.size() > 0 && !sessions.get(i).name.equals(session)){
+					for(int l = 0; l < sessions.get(i).assignment.size(); l++){
+						if(sessions.get(i).assignment.get(l).getKey().equals(key)
+								&& sessions.get(i).assignment.get(l).getValue().equals(value)){
+							sessions.get(i).assignment.remove(l);
+						}
+					}
+				}
+				// Found assigned session, add.
+				if(sessions.get(i).name.equals(session)) {
+					sessions.get(i).assignment.add(pair);
+				}
+			}
 		}
-
 	}
 
 	@Override

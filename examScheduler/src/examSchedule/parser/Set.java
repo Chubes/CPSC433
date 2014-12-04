@@ -54,16 +54,15 @@ public class Set {
 			}
 		}
 		
-//Temporary removal
 		sortList(workingSet);
 		sortList(bestSet);
-	
+
+		// Keeping data for best sets		
 		for(int i = 0; i < 10; i++ ){
 			bestSet.add(i, workingSet.get(i));
 		}
 		
 		for(int i = 14; i > workingSetKeep; i-- ){
-			
 			workingSet.remove(i);
 		}
 	}
@@ -191,6 +190,34 @@ public class Set {
 		return newGen;
 	}
 */
+	
+	
+// Do not use, incomplete	
+	public static boolean mutate(Environment env) {
+		boolean swapped = false;
+		Random rnd = new Random();
+		int r = rnd.nextInt();
+		for(Session S1 : env.sessions){
+			for(Session S2 : env.sessions){
+				if(!S1.name.equals(S2.name) && (S2.assignment.size() > 0)){
+					if(S1.assignment.size() == 0){
+						r = rnd.nextInt(S2.assignment.size());
+						
+					}
+					else{
+						for(int i = 0; i < S1.assignment.size(); i++){
+							for(int j = 0; i < S2.assignment.size(); i++){
+								
+								
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
 	public static ArrayList<Pair<Course, Lecture>> getLec(ArrayList<Course> courses){
 		ArrayList <Pair<Course, Lecture>> examsList = new ArrayList<Pair<Course, Lecture>>();
 		for(int i = 0; i < courses.size(); i++){
