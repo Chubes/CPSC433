@@ -17,6 +17,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	public ArrayList<Session> sessions = new ArrayList<Session>();
 	public ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 	public ArrayList<String> day = new ArrayList<String>();
+	public int utility = 0;
 
 	/*public Object clone(){
 		 Environment envClone = (Environment) this.clone();
@@ -54,7 +55,8 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	}
 	
 	public int softConstraints(){
-		return softC1() + softC2() + softC3() + softC4() + softC5() + softC6() + softC7();
+		utility = softC1() + softC2() + softC3() + softC4() + softC5() + softC6() + softC7();
+		return utility;
 	}
 	
 	public boolean hardConstraints(){
@@ -100,7 +102,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 											for(Pair<Course,Lecture> assign2 : ses2.assignment){
 												if(assign2.getKey().equals(enr2.getKey()) && assign2.getValue().equals(enr2.getValue())){
 													if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) < ses2.time)){
-														System.out.println("Incurred soft constraint 1 penalty: +100");
+//														System.out.println("Incurred soft constraint 1 penalty: +100");
 														penalty += 100;
 													}// end-if
 												}// end-if
@@ -135,7 +137,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 										for(Pair<Course,Lecture> assign2 : ses2.assignment){
 											if(assign2.getKey().equals(ins2.getKey()) && assign2.getValue().equals(ins2.getValue())){
 												if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((ins1.getValue().examLength + ses1.time) < ses2.time)){
-													System.out.println("Incurred soft constraint 2 penalty: +20");
+//													System.out.println("Incurred soft constraint 2 penalty: +20");
 													penalty+=20;
 												}//end-if
 											}// end-if
@@ -179,7 +181,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 														penalty+=0;
 													}//end-if
 													else {
-														System.out.println("Incurred soft constraint 3 penalty: +50");
+//														System.out.println("Incurred soft constraint 3 penalty: +50");
 														penalty += 50;
 													}
 												}// end-if
@@ -225,7 +227,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 						}
 					}
 					if (sum > 5) {
-						System.out.println("Incurred soft constraint 4 penalty: +50");
+//						System.out.println("Incurred soft constraint 4 penalty: +50");
 						penalty += 50;
 					}
 				}
@@ -254,7 +256,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 												if(assign2.getKey().equals(enr2.getKey()) && assign2.getValue().equals(enr2.getValue())){
 													if((ses1.day.equals(ses2.day)) && (ses1.time <= ses2.time) && ((enr1.getValue().examLength + ses1.time) != ses2.time)){
 														penalty += 50;
-														System.out.println("Incurred soft constraint 5 penalty: +50");
+//														System.out.println("Incurred soft constraint 5 penalty: +50");
 													}// end-if
 												}// end-if
 											}// end-if
@@ -282,7 +284,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 					if(!assign1.getKey().equals(assign2.getKey()) || !assign1.getValue().equals(assign2.getValue())){
 						if(assign1.getValue().examLength != assign2.getValue().examLength){
 							penalty+=20;
-							System.out.println("Incurred soft constraint 6 penalty: +20");
+//							System.out.println("Incurred soft constraint 6 penalty: +20");
 						}
 					}
 				}
@@ -301,7 +303,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			for (Pair<Course, Lecture> assign1 : S.assignment) {
 				if (assign1.getValue().examLength != S.sessionLength) {
 					penalty += 5;
-					System.out.println("Incurred soft constraint 7 penalty: +5");
+//					System.out.println("Incurred soft constraint 7 penalty: +5");
 				}
 			}
 		}
