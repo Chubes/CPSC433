@@ -7,7 +7,8 @@ import examSchedule.*;
 
 public class Set {
 
-	static int workingSetSize = 10;
+	static int workingSetSize = 15;
+	static int workingSetKeep = 9;
 	static int bestSetSize = 5;
 //	static int workingSetSize = 30;		// number of facts in the working set
 //	static int bestSetSize = 10;	// number of facts in the all-time-best set
@@ -35,7 +36,7 @@ public class Set {
 		Environment best = workingSet.getFirst();
 		best.printOutput(outFile + "_best");
 		System.out.println("Penalty:" + best.utility);
-//		 bestSet.get(0).printOutput(outFile);
+		bestSet.get(0).printOutput(outFile);
 	}
 	
 	
@@ -55,7 +56,16 @@ public class Set {
 		
 //Temporary removal
 		sortList(workingSet);
-//		sortList(bestSet);
+		sortList(bestSet);
+	
+		for(int i = 0; i < 10; i++ ){
+			bestSet.add(i, workingSet.get(i));
+		}
+		
+		for(int i = 14; i > workingSetKeep; i-- ){
+			
+			workingSet.remove(i);
+		}
 	}
 	//Mike's Generation function
 	public static Environment generateNew(Environment B){
