@@ -33,10 +33,21 @@ public class Set {
 		}
 		System.out.println("DONE");
 		
-		Environment best = workingSet.getFirst();
-		best.printOutput(outFile + "_best");
-		System.out.println("Penalty:" + best.utility);
+//		Environment best = workingSet.getFirst();
+//		best.printOutput(outFile + "_best");
+		
+		System.out.println("Penalty:" + bestSet.get(0).utility);
 		bestSet.get(0).printOutput(outFile);
+//Debug**
+		mutate(bestSet.get(0));
+		bestSet.get(0).printOutput("mutate1.txt");
+		mutate(bestSet.get(0));
+		bestSet.get(0).printOutput("mutate2.txt");
+		mutate(bestSet.get(0));
+		bestSet.get(0).printOutput("mutate3.txt");
+		mutate(bestSet.get(0));
+		bestSet.get(0).printOutput("mutate4.txt");
+//Debug**
 	}
 	
 	
@@ -196,22 +207,31 @@ public class Set {
 	// Returns false if it failed to mutate
 	public static boolean mutate(Environment env) {
 		Random rnd = new Random();
-		int s1r = rnd.nextInt();
-		int s2r = rnd.nextInt();
+		Random rnd1 = new Random();
+		Random rnd2 = new Random();
+		int s1r = rnd1.nextInt(env.sessions.size());
+		int s2r = rnd2.nextInt(env.sessions.size());
 		boolean swapOrMove = rnd.nextBoolean();
 
 		// Try to ensure that s1r != s2r index since it is the same Environment
-		for(int i = 0; (i < 10) && (s1r != s2r); i++){
-			s1r = rnd.nextInt(env.sessions.size());
-			s2r = rnd.nextInt(env.sessions.size());
+		int i = 0;
+		while(((i < 10) && (s1r == s2r))){
+			s1r = rnd1.nextInt(env.sessions.size());
+			s2r = rnd2.nextInt(env.sessions.size());
+			i++;
+			if((s1r == s2r)){
+				System.out.println("Same:"+ s1r + "," + s2r);
+			}
+			System.out.println(i);
+			System.out.println(s1r + "," + s2r);
 		}
 		Session S1 = env.sessions.get(s1r);
 		Session S2 = env.sessions.get(s2r);
-		
 		// Ensure they are different and at least one has an assignment that can be swapped.
 		if(!S1.name.equals(S2.name) && (S2.assignment.size() > 0)){
 			if(swapOrMove){
 				// Move from S2 to S1
+//				System.out.println("Move");
 				s2r = rnd.nextInt(S2.assignment.size());
 				if(S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength
 						&& env.studentCount(S2.assignment.get(s2r)) <= S1.room.remainCap) {
@@ -228,8 +248,9 @@ public class Set {
 			}
 			else{
 				// Session 1 cannot have nothing assigned to it.
-				if(S1.assignment.size() != 0){
+				if(S1.assignment.size() > 0){
 					// Session 1 has assignments, swap with Session 2
+//					System.out.println("Swap");
 					s1r = rnd.nextInt(S1.assignment.size());
 					s2r = rnd.nextInt(S2.assignment.size());
 					
@@ -260,6 +281,7 @@ public class Set {
 				}
 			}
 		}
+//		System.out.println("Failed to move or swap...");
 		return false;
 	}
 	
