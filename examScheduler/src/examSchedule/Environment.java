@@ -1095,7 +1095,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		try {
 			outFileName += ".out";
 			PrintWriter out = new PrintWriter(outFileName);
-			
+			/*
 			String instr = "//Instructors\n";
 			for (int i = 0; i < instructors.size(); i++) {
 				instr += "instructor("+ instructors.get(i).name + ")\n";
@@ -1200,7 +1200,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 					enrls += "enrolled("+ studentName + "," + crsName + "," + lecName+ ")\n";
 				}
 			}
-			out.println(enrls);
+			out.println(enrls);*/
 			
 			String assign = "//Assignments\n";
 			for (int i = 0; i < sessions.size(); i++) {
