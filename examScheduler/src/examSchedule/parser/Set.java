@@ -63,67 +63,77 @@ public class Set {
 	}
 	//Mike's Generation function
 	public static Environment generateNew(Environment B){
-	
-		Environment newGen = new Environment("clone");
-		newGen = B.clone();
 		
-		do{
+		Environment newGen = new Environment("clone");
+		Random rnd = new Random();
+		
+		//do{ 
+			newGen = B.clone();
+			newGen.printOutput("A");
+			//System.out.println(newGen.sessions.size());
 			
-			Random rnd = new Random();
 			ArrayList<Pair<Course,Lecture>> exams = getLec(newGen.courses);
 			ArrayList<Session> slots = newGen.sessions;
 			System.out.println(slots.size());
 			ArrayList<Session> temp = new ArrayList<Session>();
-			Session tmp = null;
+			Session tmp = new Session("");
 //Debug		
 			System.out.println("S:" + slots.size());			
 			while(slots.size()>0){
 				
 				int r =rnd.nextInt(slots.size());
+				System.out.println("slots r Room Space: " +  slots.get(r).room.remainCap);
+				slots.get(r).room.remainCap = slots.get(r).room.capacity;
 				tmp = slots.get(r);
 				slots.remove(r);
 				
 				int i = 0;
 				
-				while(i< exams.size()){
+				while(i < exams.size()){
 				
 //					System.out.println("hi");
-					
-					if(((tmp.room.remainCap - B.studentCount(exams.get(i))) >=0) && exams.get(i).getValue().examLength <= tmp.sessionLength){
+					System.out.println("tmp Room Space: " +  tmp.room.remainCap);	
+					System.out.println("tmp Room Space left: " +  (tmp.room.remainCap- B.studentCount(exams.get(i))));	
+					if(((tmp.room.remainCap - B.studentCount(exams.get(i))) >= 0) && exams.get(i).getValue().examLength <= tmp.sessionLength){
+						System.out.println("HEY" +  exams.size());
 						tmp.assignment.add(exams.get(i));
 						tmp.room.remainCap -=  B.studentCount(exams.get(i));
 						exams.remove(i);
-						System.out.print( exams.size());
-						i--;
+						
+						System.out.println("E:" +exams.size());
+					}
+					else{
+						//System.out.println("HEY" +  i);
+						i++;
 					}
 					
-					i++;
 					
 				}
-								
+						
 				temp.add(tmp);
 
 //Debug		
 				System.out.println("T:" +temp.size());
 //Debug
-				System.out.println("E:" +exams.size());
+				
 			}
-			
+			newGen.sessions = B.sessions;
 			for(int i = 0; i < temp.size(); i++){
 				String s;
 				String c;
 				String lec;
 				s = temp.get(i).name;
 				for(int j = 0; j < temp.get(i).assignment.size(); j++){
-					c =  temp.get(i).assignment.get(j).getKey().name;	
+					c =  temp.get(i).assignment.get(j).getKey().name;
 					lec = temp.get(i).assignment.get(j).getValue().name;
+					newGen.a_lecture(temp.get(i).assignment.get(j).getValue().course, temp.get(i).assignment.get(j).getValue().name, temp.get(i).assignment.get(j).getValue().instructor, temp.get(i).assignment.get(j).getValue().examLength); 
 					newGen.a_assign(c, lec, s);
 				}
 				
 			}
-			//newGen.sessions = temp;
-		
-		}while(!newGen.hardConstraints());
+			
+			newGen.printOutput("test");
+		//}while(!newGen.hardConstraints());
 	
 		return newGen;
 	}
