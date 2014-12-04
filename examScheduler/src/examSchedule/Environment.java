@@ -1209,7 +1209,6 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 				}
 			}
 			out.println(assign);
-			
 			out.close();
 		
 		} catch (FileNotFoundException e) {

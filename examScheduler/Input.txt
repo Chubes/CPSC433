@@ -22,4 +22,3 @@ session(M1-09-R,RedGym ,M1,9,3)
 session(M1-08-J,JackSimpson,M1,8,3)
 
 // Fixed Assignments
-assign(CPSC433,L01,M1-08-G) 

@@ -7,8 +7,10 @@ import examSchedule.*;
 
 public class Set {
 
-	static int workingSetSize = 30;		// number of facts in the working set
-	static int bestSetSize = 10;	// number of facts in the all-time-best set
+	static int workingSetSize = 10;
+	static int bestSetSize = 5;
+//	static int workingSetSize = 30;		// number of facts in the working set
+//	static int bestSetSize = 10;	// number of facts in the all-time-best set
 	
 	static LinkedList<Environment> workingSet;
 	static LinkedList<Environment> bestSet;
@@ -43,23 +45,27 @@ public class Set {
 			Environment E = generateNew(kontrol);
 			if(E != null){
 				workingSet.add(E);
+//Debug				
+				E.printOutput("test.txt" + workingSet.size());
 			}
 		}
 		
-		sortList(workingSet);
-		/*bestSet.
+//Temporary removal
+//		sortList(workingSet);
+		
+/*bestSet.
 		for(int i = 0, i < bestSetSize; i++){
 			bestSet.
 		}
-		sortList(bestSet);*/
+		sortList(bestSet);
+*/
 		
 	}
 
 	
 	public static Environment generateNew(Environment B){
 		
-		Environment newGen = new Environment("clone");
-		newGen = B.clone();
+		Environment newGen = B.clone();
 		
 		do{
 			Random rnd = new Random();
@@ -124,9 +130,7 @@ public class Set {
 				temp.add(tmp);
 			}
 */			newGen.sessions = temp;
-			newGen.printOutput("test.txt");
 		}while(!newGen.hardConstraints());
-		
 		return newGen;
 	}
 
