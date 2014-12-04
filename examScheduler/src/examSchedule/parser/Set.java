@@ -84,11 +84,24 @@ public class Set {
 			ArrayList<Session> temp = new ArrayList<Session>();
 			Session tmp = new Session("");
 			
+			for(Session S : slots){ 
+				while(S.assignment.size() > 0){
+					Pair<Course,Lecture> pair = S.assignment.removeFirst();
+//					System.out.println("C/L: " + pair.getKey().name + "," + pair.getValue().name + "; " + S.assignment.size());
+					S.room.remainCap -= garbage.studentCount(pair);
+					for(int i = 0; i < exams.size(); i++){
+						if(exams.get(i).getKey().equals(pair.getKey()) && exams.get(i).getValue().equals(pair.getValue())){
+							exams.remove(i);
+							break;
+						}
+					}
+				}
+			}
 			while(slots.size()>0){
 				
 				int r =rnd.nextInt(slots.size());
 				tmp = slots.get(r);
-				tmp.room.remainCap = tmp.room.capacity;
+				
 				slots.remove(r);
 				int i = 0;
 
