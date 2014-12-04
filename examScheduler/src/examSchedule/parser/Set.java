@@ -86,7 +86,11 @@ public class Set {
 		}
 		//mutate loop
 		for(int i = (workingSet.size()-1); i>1; i--){
-			mutate(workingSet.get(i));
+			for(int j = 0; j < 10; j++) {
+				if(mutate(workingSet.get(i))){
+					break;
+				}
+			}
 		}
 	}
 	//Mike's Generation function
