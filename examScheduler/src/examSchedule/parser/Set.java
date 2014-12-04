@@ -62,17 +62,46 @@ public class Set {
 		newGen = B.clone();
 		
 		do{
-			
 			Random rnd = new Random();
 			ArrayList<Pair<Course,Lecture>> exams = getLec(newGen.courses);
 			ArrayList<Session> slots = newGen.sessions;
-			System.out.println(slots.size());
+//Debug		
+			System.out.println("S:" + slots.size());
 			ArrayList<Session> temp = new ArrayList<Session>();
 			Session tmp = null;
-			
+
+//Added Landon			
+			while(exams.size() > 0){
+				int r1 = rnd.nextInt(exams.size());
+				int r2 = rnd.nextInt(slots.size());
+				int attempt = 0;
+					
+				while(attempt <= slots.size()){
+					tmp = slots.get(r2);
+					// Find a slot with appropriate capacity.
+					if((tmp.room.remainCap - B.studentCount(exams.get(r1))) < 0){
+						attempt++;
+						r2 = rnd.nextInt(slots.size());
+					}
+					else{
+						// conditional break state.
+						attempt = slots.size() + 1;
+					}
+				}
+				tmp.assignment.add(exams.get(r1));
+				tmp.room.remainCap -=  B.studentCount(exams.get(r1));
+				exams.remove(r1);
+				temp.add(tmp);
+//Debug		
+				System.out.println("T:" +temp.size());
+				//Debug
+				System.out.println("E:" +exams.size());
+			}
+//Removed Landon
+/*			
 			while(slots.size()>0){
 				
-				int r =rnd.nextInt(slots.size());
+				int r = rnd.nextInt(slots.size());
 				tmp = slots.get(r);
 				slots.remove(r);
 				int i = 0;
@@ -94,9 +123,8 @@ public class Set {
 								
 				temp.add(tmp);
 			}
-			newGen.sessions = temp;
-		System.out.print( exams.size());
-		newGen.printOutput("test.txt");
+*/			newGen.sessions = temp;
+			newGen.printOutput("test.txt");
 		}while(!newGen.hardConstraints());
 		
 		return newGen;

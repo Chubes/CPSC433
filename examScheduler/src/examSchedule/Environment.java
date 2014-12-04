@@ -1164,7 +1164,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 			}
 			out.println(rmas);
 			
-			String dass = "\n//Day Assigns\n";
+			String dass = "//Day Assigns\n";
 			for (int i = 0; i < sessions.size(); i++) {
 				dass += "dayAssign(" + sessions.get(i).name + "," + sessions.get(i).day + ")\n";
 			}
