@@ -68,13 +68,25 @@ public class Set {
 		sortList(workingSet);
 		sortList(bestSet);
 
-		// Keeping data for best sets		
+		// Keeping data for best sets	
+		if(bestSet.size() != 0){
 		for(int i = 0; i < 10; i++ ){
-			bestSet.add(i, workingSet.get(i));
+			if(bestSet.get(i).utility > workingSet.get(i).utility )
+				bestSet.add(i, workingSet.get(i));
 		}
-		
+		}
+		else{
+			for(int i = 0; i < 10; i++ ){
+				
+					bestSet.add(i, workingSet.get(i));
+			}
+		}
 		for(int i = 14; i > workingSetKeep; i-- ){
 			workingSet.remove(i);
+		}
+		//mutate loop
+		for(int i = 0; i<workingSet.size(); i++){
+			mutate(workingSet.get(i));
 		}
 	}
 	//Mike's Generation function
@@ -281,7 +293,7 @@ public class Set {
 				}
 			}
 		}
-//		System.out.println("Failed to move or swap...");
+		System.out.println("Failed to move or swap...");
 		return false;
 	}
 	
