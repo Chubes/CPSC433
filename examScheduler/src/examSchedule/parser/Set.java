@@ -192,24 +192,69 @@ public class Set {
 */
 	
 	
-// Do not use, incomplete	
+	// Swap two assignments between 2 sessions OR move 1 assignment
+	// Returns false if it failed to mutate
 	public static boolean mutate(Environment env) {
-		boolean swapped = false;
 		Random rnd = new Random();
-		int r = rnd.nextInt();
-		for(Session S1 : env.sessions){
-			for(Session S2 : env.sessions){
-				if(!S1.name.equals(S2.name) && (S2.assignment.size() > 0)){
-					if(S1.assignment.size() == 0){
-						r = rnd.nextInt(S2.assignment.size());
+		int s1r = rnd.nextInt();
+		int s2r = rnd.nextInt();
+		boolean swapOrMove = rnd.nextBoolean();
+
+		// Try to ensure that s1r != s2r index since it is the same Environment
+		for(int i = 0; (i < 10) && (s1r != s2r); i++){
+			s1r = rnd.nextInt(env.sessions.size());
+			s2r = rnd.nextInt(env.sessions.size());
+		}
+		Session S1 = env.sessions.get(s1r);
+		Session S2 = env.sessions.get(s2r);
+		
+		// Ensure they are different and at least one has an assignment that can be swapped.
+		if(!S1.name.equals(S2.name) && (S2.assignment.size() > 0)){
+			if(swapOrMove){
+				// Move from S2 to S1
+				s2r = rnd.nextInt(S2.assignment.size());
+				if(S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength
+						&& env.studentCount(S2.assignment.get(s2r)) <= S1.room.remainCap) {
+					
+					// Move <c,lec> from S2 to S1 and update remainingCapacities.
+					S2.room.remainCap += env.studentCount(S2.assignment.get(s2r));
+					S1.room.remainCap -= env.studentCount(S2.assignment.get(s2r));
+					S1.assignment.add(S2.assignment.get(s2r));
+					S2.assignment.remove(s2r);	
+					
+					// Swap occurred
+					return true;
+				}	
+			}
+			else{
+				// Session 1 cannot have nothing assigned to it.
+				if(S1.assignment.size() != 0){
+					// Session 1 has assignments, swap with Session 2
+					s1r = rnd.nextInt(S1.assignment.size());
+					s2r = rnd.nextInt(S2.assignment.size());
+					
+					// Check exam times fit each other
+					if(S1.assignment.get(s1r).getValue().examLength <= S2.sessionLength
+							&& S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength) {
 						
-					}
-					else{
-						for(int i = 0; i < S1.assignment.size(); i++){
-							for(int j = 0; i < S2.assignment.size(); i++){
+						// Create potential capacities
+						long s1Cap = S1.room.remainCap + env.studentCount(S1.assignment.get(s1r));
+						long s2Cap = S2.room.remainCap + env.studentCount(S2.assignment.get(s2r));
+						// Check capacity is fine
+						if((env.studentCount(S2.assignment.get(s2r)) <= s1Cap) 
+								&&(env.studentCount(S1.assignment.get(s1r)) <= s2Cap) ){
 								
+							// Swap a <c,lec> of S2, S1 and update remainingCapacities.
+							S1.room.remainCap = s1Cap - env.studentCount(S2.assignment.get(s2r));
+							S2.room.remainCap = s2Cap - env.studentCount(S1.assignment.get(s1r));
+							
+							Pair<Course,Lecture> tmp1 = S1.assignment.remove(s1r);
+							Pair<Course,Lecture> tmp2 = S2.assignment.remove(s2r);
+							
+							S1.assignment.add(tmp2);
+							S2.assignment.add(tmp1);
 								
-							}
+							return true;
 						}
 					}
 				}
