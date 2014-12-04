@@ -27,7 +27,7 @@ public class Set {
 		while((System.currentTimeMillis() - startTime)< timeLimit ) {
 			search(kontrol);
 			long elapsedTime = (System.currentTimeMillis() - startTime);
-			System.out.println("TIME PASSED: " +elapsedTime);
+			//System.out.println("TIME PASSED: " +elapsedTime);
 			 
 		}
 		System.out.println("DONE");
@@ -92,7 +92,11 @@ public class Set {
 				while(i < exams.size()){
 				
 //					System.out.println("hi");
-					System.out.println("tmp Room Space: " +  tmp.room.remainCap);	
+					try{
+					System.out.println("tmp Course Space: " +  tmp.assignment.get(0).getKey().name);
+					}catch(IndexOutOfBoundsException e){
+						System.out.println("empty");
+					}
 					System.out.println("tmp Room Space left: " +  (tmp.room.remainCap- B.studentCount(exams.get(i))));	
 					if(((tmp.room.remainCap - B.studentCount(exams.get(i))) >= 0) && exams.get(i).getValue().examLength <= tmp.sessionLength){
 						System.out.println("HEY" +  exams.size());
@@ -109,7 +113,7 @@ public class Set {
 					
 					
 				}
-						
+				System.out.println("tmp Course Space: " +  tmp.assignment.get(0).getKey().name);			
 				temp.add(tmp);
 
 //Debug		
