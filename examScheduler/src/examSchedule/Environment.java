@@ -8,7 +8,7 @@ import java.util.Vector;
 import examSchedule.parser.*;
 import examSchedule.parser.Predicate.ParamType;
 
-public class Environment extends PredicateReader implements ExamSchedulePredicates, EnvironmentInterface {
+public class Environment extends PredicateReader implements ExamSchedulePredicates, EnvironmentInterface, Cloneable {
 
 	public ArrayList<Student> students = new ArrayList<Student>();
 	public ArrayList<Instructor> instructors = new ArrayList<Instructor>();
@@ -18,17 +18,17 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	public ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 	public ArrayList<String> day = new ArrayList<String>();
 
-	public Environment clone(){
-		 Environment envClone = new Environment("clone");
-		 envClone.students = this.students;
-		 envClone.instructors = this.instructors;
-		 envClone.rooms = this.rooms;
-		 envClone.courses = this.courses;
-		 envClone.sessions = this.sessions;
-		 envClone.lectures = this.lectures;
-		 envClone.day = this.day;
+	/*public Object clone(){
+		 Environment envClone = (Environment) this.clone();
+		 envClone.students = (ArrayList<Student>)students.clone();
+		 envClone.instructors = (ArrayList<Instructor>)instructors.clone();
+		 envClone.rooms = (ArrayList<Room>)rooms.clone();
+		 envClone.courses = (ArrayList<Course>)courses.clone();
+		 envClone.sessions = (ArrayList<Session>)sessions.clone();
+		 envClone.lectures = (ArrayList<Lecture>)lectures.clone();
+		 envClone.day = (ArrayList<String>)day.clone();
 		 return envClone; 
-	 }
+	 }*/
 	// ArrayList<Day> days = new ArrayList<Day>();
 	// ArrayList<Instructs> instructs = new ArrayList<Instructs>();
 	// ArrayList<Capacity> capacities = new ArrayList<Capacity>();

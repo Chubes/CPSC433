@@ -15,9 +15,9 @@ public class Set {
 	static LinkedList<Environment> workingSet;
 	static LinkedList<Environment> bestSet;
 	final long timeLimit;
-
+	static String outFile;
 	public Set(Environment env, long maxTime, String outFile){
-		
+		this.outFile = outFile;
 		this.timeLimit = maxTime;
 		long startTime = System.currentTimeMillis();
 		Environment kontrol = env;
@@ -64,17 +64,20 @@ public class Set {
 	//Mike's Generation function
 	public static Environment generateNew(Environment B){
 		
-		Environment newGen = new Environment("clone");
+		Environment newGen = new Environment("Gen");
+		Environment garbage = new Environment("Garb");
 		Random rnd = new Random();
 		
-		//do{ 
-			newGen = B.clone();
-			newGen.printOutput("A");
-			//System.out.println(newGen.sessions.size());
+		do{ 
 			
-			ArrayList<Pair<Course,Lecture>> exams = getLec(newGen.courses);
-			ArrayList<Session> slots = newGen.sessions;
-			System.out.println(slots.size());
+			
+			newGen.fromFile(outFile);
+			garbage.fromFile(outFile);
+			newGen.printOutput("A");
+			
+			ArrayList<Pair<Course,Lecture>> exams = getLec(garbage.courses);
+			
+			ArrayList<Session> slots = garbage.sessions;
 			ArrayList<Session> temp = new ArrayList<Session>();
 			Session tmp = new Session("");
 //Debug		
@@ -82,38 +85,42 @@ public class Set {
 			while(slots.size()>0){
 				
 				int r =rnd.nextInt(slots.size());
-				System.out.println("slots r Room Space: " +  slots.get(r).room.remainCap);
-				slots.get(r).room.remainCap = slots.get(r).room.capacity;
+								
 				tmp = slots.get(r);
+				tmp.room.remainCap = tmp.room.capacity;
 				slots.remove(r);
-				
+				//System.out.println("slots r Room Space: " +  slots.get(r).room.remainCap);
 				int i = 0;
-				
+				System.out.println("exams: "+exams.size());
 				while(i < exams.size()){
 				
-//					System.out.println("hi");
+
 					try{
-					System.out.println("tmp Course Space: " +  tmp.assignment.get(0).getKey().name);
+					System.out.println("tmp Course: " +  tmp.assignment.get(0).getKey().name);
 					}catch(IndexOutOfBoundsException e){
 						System.out.println("empty");
 					}
-					System.out.println("tmp Room Space left: " +  (tmp.room.remainCap- B.studentCount(exams.get(i))));	
-					if(((tmp.room.remainCap - B.studentCount(exams.get(i))) >= 0) && exams.get(i).getValue().examLength <= tmp.sessionLength){
+					//System.out.println("tmp Room Space left: " + tmp.room.room+ "  " +  (tmp.room.remainCap));	
+					if(((tmp.room.remainCap - garbage.studentCount(exams.get(i))) >= 0) && exams.get(i).getValue().examLength <= tmp.sessionLength){
 						System.out.println("HEY" +  exams.size());
 						tmp.assignment.add(exams.get(i));
-						tmp.room.remainCap -=  B.studentCount(exams.get(i));
+						tmp.room.remainCap -=  garbage.studentCount(exams.get(i));
 						exams.remove(i);
 						
 						System.out.println("E:" +exams.size());
 					}
 					else{
-						//System.out.println("HEY" +  i);
+						
 						i++;
 					}
 					
 					
 				}
-				System.out.println("tmp Course Space: " +  tmp.assignment.get(0).getKey().name);			
+				try{
+					System.out.println("tmp Course: " +  tmp.assignment.get(0).getKey().name);
+					}catch(IndexOutOfBoundsException e){
+						System.out.println("empty");
+					}
 				temp.add(tmp);
 
 //Debug		
@@ -121,7 +128,7 @@ public class Set {
 //Debug
 				
 			}
-			newGen.sessions = B.sessions;
+			//newGen.sessions = garbage.sessions;
 			for(int i = 0; i < temp.size(); i++){
 				String s;
 				String c;
@@ -131,13 +138,16 @@ public class Set {
 					c =  temp.get(i).assignment.get(j).getKey().name;
 					lec = temp.get(i).assignment.get(j).getValue().name;
 					newGen.a_lecture(temp.get(i).assignment.get(j).getValue().course, temp.get(i).assignment.get(j).getValue().name, temp.get(i).assignment.get(j).getValue().instructor, temp.get(i).assignment.get(j).getValue().examLength); 
+					System.out.println(temp.get(i).assignment.get(j).getValue().course+ " " +temp.get(i).assignment.get(j).getValue().name+ " " +temp.get(i).assignment.get(j).getValue().instructor + " " + temp.get(i).assignment.get(j).getValue().examLength);
 					newGen.a_assign(c, lec, s);
+					System.out.println(c + " " + lec + " " + s);
 				}
 				
 			}
 			
 			newGen.printOutput("test");
-		//}while(!newGen.hardConstraints());
+			B.printOutput("B");
+		}while(!newGen.hardConstraints());
 	
 		return newGen;
 	}
@@ -156,7 +166,7 @@ public class Set {
 //Debug		
 			System.out.println("S:" + slots.size());
 			ArrayList<Session> temp = new ArrayList<Session>();
-			Session tmp = null;
+			Session tmp = null; 
 
 //Added Landon			
 			while(exams.size() > 0){
