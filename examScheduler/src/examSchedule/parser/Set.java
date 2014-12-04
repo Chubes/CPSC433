@@ -103,6 +103,70 @@ public class Set {
 				//Debug
 				System.out.println("E:" +exams.size());
 			}
+			
+			//Mike's Generation function
+			/*	public static Environment generateNew(Environment B){
+		
+		Environment newGen = new Environment("clone");
+		newGen = B.clone();
+		
+		do{
+			
+			Random rnd = new Random();
+			ArrayList<Pair<Course,Lecture>> exams = getLec(newGen.courses);
+			ArrayList<Session> slots = newGen.sessions;
+			System.out.println(slots.size());
+			ArrayList<Session> temp = new ArrayList<Session>();
+			Session tmp = null;
+			
+			while(slots.size()>0){
+				
+				int r =rnd.nextInt(slots.size());
+				tmp = slots.get(r);
+				slots.remove(r);
+				
+				int i = 0;
+				
+				while(i< exams.size()){
+				
+					System.out.println("hi");
+					
+					if(((tmp.room.remainCap - B.studentCount(exams.get(i))) >=0) && exams.get(i).getValue().examLength <= tmp.sessionLength){
+						tmp.assignment.add(exams.get(i));
+						tmp.room.remainCap -=  B.studentCount(exams.get(i));
+						exams.remove(i);
+						System.out.print( exams.size());
+						i--;
+					}
+					
+					i++;
+					
+				}
+								
+				temp.add(tmp);
+			}
+			
+			for(int i = 0; i < temp.size(); i++){
+				String s;
+				String c;
+				String lec;
+				s = temp.get(i).name;
+				for(int j = 0; j < temp.get(i).assignment.size(); j++){
+					c =  temp.get(i).assignment.get(j).getKey().name;	
+					lec = temp.get(i).assignment.get(j).getValue().name;
+					newGen.a_assign(c, lec, s);
+				}
+				
+			}
+			//newGen.sessions = temp;
+		
+		newGen.printOutput("test.txt");
+		}while(!newGen.hardConstraints());
+		
+		return newGen;
+	}
+		
+			 */
 //Removed Landon
 /*			
 			while(slots.size()>0){
