@@ -20,13 +20,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 
 	public Environment clone(){
 		 Environment envClone = new Environment("clone");
-		 envClone.students = (ArrayList<Student>)students.clone();
-		 envClone.instructors = (ArrayList<Instructor>)instructors.clone();
-		 envClone.rooms = (ArrayList<Room>)rooms.clone();
-		 envClone.courses = (ArrayList<Course>)courses.clone();
-		 envClone.sessions = (ArrayList<Session>)sessions.clone();
-		 envClone.lectures = (ArrayList<Lecture>)lectures.clone();
-		 envClone.day = (ArrayList<String>)day.clone();
+		 envClone.students = this.students;
+		 envClone.instructors = this.instructors;
+		 envClone.rooms = this.rooms;
+		 envClone.courses = this.courses;
+		 envClone.sessions = this.sessions;
+		 envClone.lectures = this.lectures;
+		 envClone.day = this.day;
 		 return envClone; 
 	 }
 	// ArrayList<Day> days = new ArrayList<Day>();
