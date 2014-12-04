@@ -39,14 +39,14 @@ public class Set {
 		System.out.println("Penalty:" + bestSet.get(0).utility);
 		bestSet.get(0).printOutput(outFile);
 //Debug**
-		mutate(bestSet.get(0));
-		bestSet.get(0).printOutput("mutate1.txt");
-		mutate(bestSet.get(0));
-		bestSet.get(0).printOutput("mutate2.txt");
-		mutate(bestSet.get(0));
-		bestSet.get(0).printOutput("mutate3.txt");
-		mutate(bestSet.get(0));
-		bestSet.get(0).printOutput("mutate4.txt");
+//		mutate(bestSet.get(0));
+//		bestSet.get(0).printOutput("mutate1.txt");
+//		mutate(bestSet.get(0));
+//		bestSet.get(0).printOutput("mutate2.txt");
+//		mutate(bestSet.get(0));
+//		bestSet.get(0).printOutput("mutate3.txt");
+//		mutate(bestSet.get(0));
+//		bestSet.get(0).printOutput("mutate4.txt");
 //Debug**
 	}
 	
