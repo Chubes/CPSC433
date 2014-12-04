@@ -85,7 +85,7 @@ public class Set {
 			workingSet.remove(i);
 		}
 		//mutate loop
-		for(int i = 0; i<workingSet.size(); i++){
+		for(int i = (workingSet.size()-1); i>1; i--){
 			mutate(workingSet.get(i));
 		}
 	}
