@@ -13,6 +13,7 @@ public class Lecture {
 		instructor = "";
 		examLength = new Long(0);
 	}
+	
 	public Lecture(String l, String c, String i, Long len){
 		name = l;
 		course = c;

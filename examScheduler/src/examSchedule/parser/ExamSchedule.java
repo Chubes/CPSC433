@@ -56,13 +56,13 @@ public class ExamSchedule {
 		}
 
 
-    // if there's a second argument on the command line, it's either 
+		// if there's a second argument on the command line, it's either 
 		// a solution file name or a time in milliseconds to limit our run to...
 		if (args.length>1) {
 			// let's assume it's a time in milliseconds: we'll do a search on it.
 			try {
 				long timeLimit = new Long(args[1]).longValue();
-        doSearch(env, fromFile, timeLimit);
+				doSearch(env, fromFile, timeLimit);
 			}
 			// not a time, so it must be a filename to read a solution to evaluate from...
 			catch (NumberFormatException ex) {
@@ -94,7 +94,9 @@ public class ExamSchedule {
 	 * @param timeLimit The number of milliseconds to limit he search to.
 	 */
 	public static void doSearch(final Environment env, final String outFileName, final long timeLimit) {
-		env.printOutput(outFileName);
+		// File IO check
+		//env.printOutput(outFileName);
+		
 		Set set = new Set(env, timeLimit, outFileName);
 		
 		//System.out.println("No search currently implemented.");

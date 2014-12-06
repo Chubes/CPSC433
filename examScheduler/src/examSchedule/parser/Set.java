@@ -5,6 +5,10 @@ import java.util.Random;
 
 import examSchedule.*;
 
+/**
+ * Set based search.
+ *
+ */
 public class Set {
 
 	static int workingSetSize = 30;
@@ -15,50 +19,40 @@ public class Set {
 	static LinkedList<Environment> bestSet;
 	static long timeLimit;
 	static long startTimer;
-	static String outFile;
+	static String inFile;
 	
 	public Set(Environment env, long maxTime, String outFile){
-		this.outFile = outFile;
+		this.inFile = outFile;
 		this.timeLimit = maxTime;
 		this.startTimer = System.currentTimeMillis();
 		Environment kontrol = env;
 		bestSet = new LinkedList<Environment>();
 		workingSet = new LinkedList<Environment>();
+		
 		while((System.currentTimeMillis() - startTimer) < timeLimit) {
-			
 			search(kontrol);
-			//long elapsedTime = (System.currentTimeMillis() - startTimer);
-			//System.out.println("TIME PASSED: " +elapsedTime);
-			 
 		}
 		System.out.println("DONE");
 		
 		System.out.println("Penalty:" + bestSet.get(0).utility);
 		bestSet.get(0).printOutput(outFile);
-//Debug**
-//		mutate(bestSet.get(0));
-//		bestSet.get(0).printOutput("mutate1.txt");
-//		mutate(bestSet.get(0));
-//		bestSet.get(0).printOutput("mutate2.txt");
-//		mutate(bestSet.get(0));
-//		bestSet.get(0).printOutput("mutate3.txt");
-//		mutate(bestSet.get(0));
-//		bestSet.get(0).printOutput("mutate4.txt");
-//Debug**
 	}
 	
 	
+	/**
+	 * Generates the current working set and best set of possible 
+	 * solutions as well as mutates the working set for the next time 
+	 * search is invoked.
+	 * 
+	 * @param kontrol Control environment
+	 */
 	public static void search(Environment kontrol){
-		// placeholder for the next set
-//		LinkedList<Environment> tempEnvSet = new LinkedList<Environment>();
-	
-		// ext fill (seed for the first iteration )
+
+		// fill open slots in the working set
 		while(workingSet.size() < workingSetSize){
 			Environment E = generateNew(kontrol);
 			if(E != null){
 				workingSet.add(E);
-//Debug				
-//				E.printOutput("test.txt" + workingSet.size());
 			}
 		}
 		
@@ -66,19 +60,6 @@ public class Set {
 		sortList(bestSet);
 
 		// Keeping data for best sets
-/*		
-		if(bestSet.size() != 0){
-			for(int i = 0; i < bestSetSize; i++ ){
-				if(bestSet.get(i).utility > workingSet.get(i).utility )
-					bestSet.add(i, workingSet.get(i));
-			}
-		}
-		else{
-			for(int i = 0; i < bestSetSize; i++ ){
-					bestSet.add(i, workingSet.get(i));
-			}
-		}
-*/		
 		for(int i = 0; i < bestSetSize; i++ ){
 			bestSet.add(workingSet.get(i));
 		}
@@ -99,7 +80,7 @@ public class Set {
 			workingSet.remove(i);
 		}
 
-		//mutate loop
+		// attempt to mutate everything!
 		for(int i = (workingSet.size()-1); i>1; i--){
 			for(int j = 0; j < 10; j++) {
 				if(mutate(workingSet.get(i))){
@@ -110,6 +91,12 @@ public class Set {
 	}
 	
 	//Mike's Generation function
+	/**
+	 * Generates a new random solution set from the input set.
+	 * 
+	 * @param B control environment
+	 * @return Environment with new session assignments
+	 */
 	public static Environment generateNew(Environment B){
 		
 		Environment newGen = new Environment("Gen");
@@ -117,18 +104,20 @@ public class Set {
 		Random rnd = new Random();
 		
 		do{ 
-			newGen.fromFile(outFile);
-			garbage.fromFile(outFile);
+			// "B" would have been copied to the "garbage" environment to work from,
+			// however issues in cloning an environment, or lack-there-of due to
+			// some quirks with java forced us to do this. "B" is "kontrol" is "inFile".
+			newGen.fromFile(inFile);
+			garbage.fromFile(inFile);
 			
 			ArrayList<Pair<Course,Lecture>> exams = getLec(garbage.courses);
-
 			ArrayList<Session> slots = garbage.sessions;
 			ArrayList<Session> temp = new ArrayList<Session>();
-		
+			
+			// Find non-conflicting pre-assignments
 			for(Session S : slots){ 
 				while(S.assignment.size() > 0){
 					Pair<Course,Lecture> pair = S.assignment.removeFirst();
-//					System.out.println("C/L: " + pair.getKey().name + "," + pair.getValue().name + "; " + S.assignment.size());
 					if(S.sessionLength >= pair.getValue().examLength){
 						S.room.remainCap -= garbage.studentCount(pair);
 						for(int i = 0; i < exams.size(); i++){
@@ -141,11 +130,10 @@ public class Set {
 				}
 			}
 
-
+			// Randomly assign exams.
 			while(slots.size()>0){
 				int r =rnd.nextInt(slots.size());
 				Session tmp = slots.get(r);
-				
 				tmp.room.remainCap = tmp.room.capacity;
 
 				int i = 0;
@@ -162,7 +150,10 @@ public class Set {
 				slots.remove(r);
 				temp.add(tmp);
 			}
-
+			
+			// Move them into the working set.
+			// Due to the inability to properly clone an Environment,
+			// this was the next best method.
 			for(int i = 0; i < temp.size(); i++){
 				String s;
 				String c;
@@ -172,74 +163,23 @@ public class Set {
 					c =  temp.get(i).assignment.get(j).getKey().name;
 					lec = temp.get(i).assignment.get(j).getValue().name;
 					newGen.a_lecture(temp.get(i).assignment.get(j).getValue().course, temp.get(i).assignment.get(j).getValue().name, temp.get(i).assignment.get(j).getValue().instructor, temp.get(i).assignment.get(j).getValue().examLength); 
-//Debug	
-//					System.out.println(temp.get(i).assignment.get(j).getValue().course+ " " +temp.get(i).assignment.get(j).getValue().name+ " " +temp.get(i).assignment.get(j).getValue().instructor + " " + temp.get(i).assignment.get(j).getValue().examLength);
+					
 					newGen.a_assign(c, lec, s);
-//Debug	
-//					System.out.println(c + " " + lec + " " + s);
 				}
 				
 			}
-			//Debug				
-//			newGen.printOutput("test");
-//			B.printOutput("B");
 		}while(!newGen.hardConstraints() && ((System.currentTimeMillis() - startTimer) < timeLimit));
 	
 		return newGen;
 	}
-
-
-/*	
-	//Landon's Generation function
-	public static Environment generateNew(Environment B){
-		
-		Environment newGen = B.clone();
-		
-		do{
-			Random rnd = new Random();
-			ArrayList<Pair<Course,Lecture>> exams = getLec(newGen.courses);
-			ArrayList<Session> slots = newGen.sessions;
-//Debug		
-			System.out.println("S:" + slots.size());
-			ArrayList<Session> temp = new ArrayList<Session>();
-			Session tmp = null; 
-
-//Added Landon			
-			while(exams.size() > 0){
-				int r1 = rnd.nextInt(exams.size());
-				int r2 = rnd.nextInt(slots.size());
-				int attempt = 0;
-					
-				while(attempt <= slots.size()){
-					tmp = slots.get(r2);
-					// Find a slot with appropriate capacity.
-					if((tmp.room.remainCap - B.studentCount(exams.get(r1))) < 0){
-						attempt++;
-						r2 = rnd.nextInt(slots.size());
-					}
-					else{
-						// conditional break state.
-						attempt = slots.size() + 1;
-					}
-				}
-				tmp.assignment.add(exams.get(r1));
-				tmp.room.remainCap -=  B.studentCount(exams.get(r1));
-				exams.remove(r1);
-				temp.add(tmp);
-//Debug		
-				System.out.println("T:" +temp.size());
-//Debug
-				System.out.println("E:" +exams.size());
-			}
-			newGen.sessions = temp;
-		}while(!newGen.hardConstraints());
-		return newGen;
-	}
-*/
 	
-	
-	// Swap two assignments between 2 sessions OR move 1 assignment
-	// Returns false if it failed to mutate
+	/**
+	 * Swap two assignments between 2 sessions OR move 1 assignment.
+	 * Returns false if it failed to mutate.
+	 * 
+	 * @param env Environment to be manipulated
+	 * @return mutated environment
+	 */
 	public static boolean mutate(Environment env) {
 		Random rnd = new Random();
 		Random rnd1 = new Random();
@@ -261,7 +201,6 @@ public class Set {
 		if(!S1.name.equals(S2.name) && (S2.assignment.size() > 0)){
 			if(swapOrMove){
 				// Move from S2 to S1
-//				System.out.println("Move");
 				s2r = rnd.nextInt(S2.assignment.size());
 				if((S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength)
 						&& (env.studentCount(S2.assignment.get(s2r)) <= S1.room.remainCap)) {
@@ -282,7 +221,6 @@ public class Set {
 				// Session 1 cannot have nothing assigned to it.
 				if(S1.assignment.size() > 0){
 					// Session 1 has assignments, swap with Session 2
-//					System.out.println("Swap");
 					s1r = rnd.nextInt(S1.assignment.size());
 					s2r = rnd.nextInt(S2.assignment.size());
 					
@@ -306,7 +244,8 @@ public class Set {
 							
 							S1.assignment.add(tmp2);
 							S2.assignment.add(tmp1);
-								
+							
+							// Swap occurred
 							if(env.hardConstraints()){
 								return true;
 							}
@@ -315,10 +254,16 @@ public class Set {
 				}
 			}
 		}
-//		System.out.println("Failed to move or swap...");
+
 		return false;
 	}
 	
+	/**
+	 * Generates all of the course/lecture pairs.
+	 * 
+	 * @param courses
+	 * @return list
+	 */
 	public static ArrayList<Pair<Course, Lecture>> getLec(ArrayList<Course> courses){
 		ArrayList <Pair<Course, Lecture>> examsList = new ArrayList<Pair<Course, Lecture>>();
 		for(int i = 0; i < courses.size(); i++){
@@ -329,7 +274,12 @@ public class Set {
 		return examsList;
 	}
 	
-	
+	/**
+	 * Sorts a list of Environments based on soft constraint penalties.
+	 * Lowest penalty Environment is at the head of the list.
+	 * 
+	 * @param list List of Environments.
+	 */
 	public static void sortList(LinkedList<Environment> list){
 		for( int i = 0 ; i < list.size() ; i++){
 			for( int j = i+1 ; j < list.size() ; j++){

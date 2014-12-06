@@ -8,6 +8,10 @@ import java.util.Vector;
 import examSchedule.parser.*;
 import examSchedule.parser.Predicate.ParamType;
 
+/**
+ * Core environment for data storage and processing.
+ *
+ */
 public class Environment extends PredicateReader implements ExamSchedulePredicates, EnvironmentInterface, Cloneable {
 
 	public ArrayList<Student> students = new ArrayList<Student>();
@@ -19,7 +23,9 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	public ArrayList<String> day = new ArrayList<String>();
 	public int utility = 0;
 
-	/*public Object clone(){
+	/* This this did NOT work in any way... We tried list copying, etc. None of this worked correctly.
+	 * I blame Java`s laziness in knowing what is pointer and what is a new object.
+	  	public Object clone(){
 		 Environment envClone = (Environment) this.clone();
 		 envClone.students = (ArrayList<Student>)students.clone();
 		 envClone.instructors = (ArrayList<Instructor>)instructors.clone();
@@ -30,18 +36,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		 envClone.day = (ArrayList<String>)day.clone();
 		 return envClone; 
 	 }*/
-	// ArrayList<Day> days = new ArrayList<Day>();
-	// ArrayList<Instructs> instructs = new ArrayList<Instructs>();
-	// ArrayList<Capacity> capacities = new ArrayList<Capacity>();
-	// ArrayList<ExamLength> exams = new ArrayList<ExamLength>();
-	// ArrayList<RoomAssign> roomAssigns = new ArrayList<RoomAssign>();
-	// ArrayList<DayAssign> dayAssigns = new ArrayList<DayAssign>();
-	// ArrayList<Time> times = new ArrayList<Time>();
-	// ArrayList<Length> lengths = new ArrayList<Length>();
-	// ArrayList<At> atList = new ArrayList<At>();
-	// ArrayList<Enrolled> enrollments = new ArrayList<Enrolled>();
-	// ArrayList<Assign> assigns = new ArrayList<Assign>();
 
+	/**
+	 * Counts the number of students enrolled in a course/lecture pair.
+	 * 
+	 * @param P Pair<course,lecture>
+	 * @return number of students in the class.
+	 */
 	public int studentCount(Pair<Course,Lecture> P){
 		int count = 0;
 		for(Student S : students){
@@ -54,11 +55,21 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return count;
 	}
 	
+	/**
+	 * Full soft constraint check.
+	 *  
+	 * @return Total penalty called "utility". 
+	 */
 	public int softConstraints(){
 		utility = softC1() + softC2() + softC3() + softC4() + softC5() + softC6() + softC7();
 		return utility;
 	}
 	
+	/**
+	 * Full hard constraint check.
+	 * 
+	 * @return true if passed all HC, otherwise false.
+	 */
 	public boolean hardConstraints(){
 		boolean H1 = hardC1();
 		boolean H2 = hardC2();
@@ -83,12 +94,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return false;
 	}
 	
+	/**
+	 * S1: penalty=100/incident. No student writes more than one exam in a timeslot (no direct conflict)
+	 *  FORALL s:STUDENT, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ ENROLLED(s,c1,lec1) /\ ENROLLED(s,c2,lec2) .
+	 *   FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
+	 *    EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) . 
+	 *     t1+i < t2
+	 *    
+	 * @return sum of penalties incurred by this SC.
+	 */
 	private int softC1() {
-		// S1: penalty=100/incident. No student writes more than one exam in a timeslot (no direct conflict)
-		// FORALL s:STUDENT, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ ENROLLED(s,c1,lec1) /\ ENROLLED(s,c2,lec2) .
-		//  FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
-		//   EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) . 
-		//    t1+i < t2 
 		int penalty = 0;
 		for(Student stdnt : students){
 			if(stdnt.enrolled.size() > 1){
@@ -119,12 +134,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return penalty;
 	}
 
+	/**
+	 * S2: penalty=20/incident. No instructor invigulates in more than one room at the same time (no direct conflict)
+	 *  FORALL s:INSTRUCTOR, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ INSTRUCTS(s,c1,lec1) /\ INSTRUCTS(s,c2,lec2) .
+	 *   FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
+	 *    EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) .
+	 *     (t1+i < t2) => ses1=ses2 
+	 *     
+	 * @return sum of penalties incurred by this SC.
+	 */
 	private int softC2() {
-		//S2: penalty=20/incident. No instructor invigulates in more than one room at the same time (no direct conflict)
-		// FORALL s:INSTRUCTOR, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ INSTRUCTS(s,c1,lec1) /\ INSTRUCTS(s,c2,lec2) .
-		//  FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
-		//   EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) .
-		//    (t1+i < t2) => ses1=ses2 
 		int penalty = 0;
 		for(Instructor I : instructors){
 			for(Pair<Course,Lecture> ins1 : I.instructs){
@@ -154,12 +173,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return penalty;
 	}
 
+	/**
+	 * S3: penalty=50/incident. Every lecture for the same course should have the same exam timeslot
+	 *  FORALL c:COURSE .
+	 *   EXISTS1 day:Day, time:int .
+	 *    FORALL lec:LECTURE, ses:SESSION | LECTURE(c,lec) /\ ASSIGN(c,lec,ses) .
+	 *     AT(ses,day,time,?) 
+	 * 
+	 * @return sum of penalties incurred by this SC.
+	 */
 	private int softC3() {
-		//S3: penalty=50/incident. Every lecture for the same course should have the same exam timeslot
-		// FORALL c:COURSE .
-		//  EXISTS1 day:Day, time:int .
-		//   FORALL lec:LECTURE, ses:SESSION | LECTURE(c,lec) /\ ASSIGN(c,lec,ses) .
-		//    AT(ses,day,time,?) 
 		int penalty = 0;
 		for (Course crs : courses) {
 			ArrayList<Pair<Course, Lecture>> CL = new ArrayList<Pair<Course, Lecture>>();
@@ -198,13 +221,17 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return penalty;
 	}
 
+	/**
+	 * S4: penalty=50/incident. No student writes for longer than 5 hours in a single day
+	 *  FORALL s:STUDENT .
+	 *   FORALL d:DAY .
+	 *    (SUM i:int | (FORALL c:COURSE, lec:LECTURE, ses:SESSION | ENROLLED(s,c,lec) /\ ASSIGN(c,lec,ses) .
+	 *     dayAssign(ses,d)) .
+	 *      EXAMLENGTH(lec,i)) <= 5 
+	 *      
+	 * @return sum of penalties incurred by this SC.
+	 */
 	private int softC4() {
-		//S4: penalty=50/incident. No student writes for longer than 5 hours in a single day
-		// FORALL s:STUDENT .
-		//  FORALL d:DAY .
-		//   (SUM i:int | (FORALL c:COURSE, lec:LECTURE, ses:SESSION | ENROLLED(s,c,lec) /\ ASSIGN(c,lec,ses) .       
-		//    dayAssign(ses,d)) . 
-		//     EXAMLENGTH(lec,i)) <= 5 
 		int penalty = 0;
 		for (Student stdnt : students) {
 			if (stdnt.enrolled.size() > 1) {
@@ -236,12 +263,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return penalty;
 	}
 
+	/**
+	 * S5: penalty=50/incident. No student should write exams with no break between them
+	 *  FORALL s:STUDENT, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ ENROLLED(s,c1,lec1) /\ ENROLLED(s,c2,lec2) .
+	 *   FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
+	 *    EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) .
+	 *     t1+i /= t2 
+	 * 
+	 * @return sum of penalties incurred by this SC.
+	 */
 	private int softC5() {
-		//S5: penalty=50/incident. No student should write exams with no break between them
-		// FORALL s:STUDENT, c1,c2:COURSE, lec1,lec2:LECTURE | (lec1 /= lect2 \/ c1 /= c2) /\ ENROLLED(s,c1,lec1) /\ ENROLLED(s,c2,lec2) .
-		//  FORALL ses1,ses2:SESSION | ASSIGN(c1,lec1,ses1) /\ ASSIGN(c2,lect2,ses2) .
-		//   EXISTS d1,d2:DAY, t1,t2,i:int | AT(ses1,d1,t1,?) /\ AT(ses2,d2,t2,?) /\ d1=d2 /\ t1<=t2 /\ EXAMLENGTH(lec1,i) .
-		//    t1+i /= t2 
 		int penalty = 0;
 		for(Student stdnt : students){
 			if(stdnt.enrolled.size() > 1){
@@ -272,11 +303,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return penalty;
 	}
 
+	/**
+	 * S6: penalty=20/session. All the exams taking place in a particular session should have the same length
+	 *  FORALL ses:SESSIONS .
+	 *   EXISTS c1,c2: COURSE, lec1,lect1:LECTURE | ASSIGN(c1,lec1,ses) /\ ASSIGN(c2,lec2,ses) .
+	 *    EXISTS i:int . EXAMLENGTH(lec1, i) /\ EXAMLENGTH(lect2,i)
+	 * 
+	 * @return sum of penalties incurred by this SC.
+	 */
 	private int softC6() {
-		//S6: penalty=20/session. All the exams taking place in a particular session should have the same length
-		// FORALL ses:SESSIONS .
-		//  EXISTS c1,c2: COURSE, lec1,lect1:LECTURE | ASSIGN(c1,lec1,ses) /\ ASSIGN(c2,lec2,ses) .
-		//   EXISTS i:int . EXAMLENGTH(lec1, i) /\ EXAMLENGTH(lect2,i)
+
 		int penalty = 0;
 		for(Session S : sessions){
 			for(Pair<Course, Lecture> assign1 : S.assignment) {
@@ -293,11 +329,15 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return penalty;
 	}
 
+	/**
+	 * S7: penalty=5/session. Every exam in a session should take up the full time of the session
+	 *  FORALL ses:SESSIONS .
+	 *   EXISTS c: COURSE, lec:LECTURE | ASSIGN(c,lec,ses) .
+	 *    EXISTS i:int . EXAMLENGTH(lec, i) /\ AT(ses,?,?,i)
+	 * 
+	 * @return sum of penalties incurred by this SC.
+	 */
 	private int softC7() {
-		//S7: penalty=5/session. Every exam in a session should take up the full time of the session
-		// FORALL ses:SESSIONS .
-		//  EXISTS c: COURSE, lec:LECTURE | ASSIGN(c,lec,ses) .
-		//   EXISTS i:int . EXAMLENGTH(lec, i) /\ AT(ses,?,?,i)
 		int penalty = 0;
 		for (Session S : sessions) {
 			for (Pair<Course, Lecture> assign1 : S.assignment) {
@@ -309,12 +349,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		}
 		return penalty;
 	}
-
+	
+	/**
+	 * H1: every lecture is assigned an exam session (completeness)
+	 *  FORALL c:COURSE, lec:LECTURE | LECTURE(c,lec) .
+	 *   EXISTS ses:SESSION .
+	 *    ASSIGN(c,lec,ses) 
+	 *    
+	 * @return true for passing, otherwise false.
+	 */
 	private boolean hardC1(){
-		//H1: every lecture is assigned an exam session (completeness) 
-		// FORALL c:COURSE, lec:LECTURE | LECTURE(c,lec) . 
-		//  EXISTS ses:SESSION . 
-		//   ASSIGN(c,lec,ses) 
 		ArrayList<Pair<Course, Lecture>> CL = new ArrayList<Pair<Course, Lecture>>();
 		ArrayList<Pair<Course, Lecture>> assigns = new ArrayList<Pair<Course, Lecture>>();
 		for (Course crs : courses) {
@@ -345,10 +389,14 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return true;
 	}
 		
+	/**
+	 * H2: no lecture is assigned more than one exam session
+	 *  FORALL c:COURSE, lec:LECTURE, ses1,ses2:SESSION | LECTURE(c,lec) .
+	 *   (ASSIGN(lec,ses1) /\ ASSIGN(lec,ses2)) => ses1=ses2
+	 * 
+	 * @return true for passing, otherwise false.
+	 */
 	private boolean hardC2(){
-		//H2: no lecture is assigned more than one exam session
-		// FORALL c:COURSE, lec:LECTURE, ses1,ses2:SESSION | LECTURE(c,lec) . 
-		//  (ASSIGN(lec,ses1) /\ ASSIGN(lec,ses2)) => ses1=ses2
 		for(Course crs : courses) {
 			for(Lecture lec : crs.lecture){
 				for(Session ses1 : sessions){
@@ -372,11 +420,15 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	}
 	
 	
+	/**
+	 * H3: the number of students writing an exam in a particular exam session may not exceed the capacity of the room
+	 *  FORALL ses:SESSION, r:ROOM | ROOMASSIGN(ses,r) .
+	 *   EXISTS cap:int | CAPACITY(r,cap) .
+	 *    #{s:STUDENT | FORALL c:COURSE, lec: LECTURE | ASSIGN(c,lec,ses) . ENROLLED(s,c,lec)} <= cap
+	 * 
+	 * @return true for passing, otherwise false.
+	 */
 	private boolean hardC3(){
-		//H3: the number of students writing an exam in a particular exam session may not exceed the capacity of the room
-		// FORALL ses:SESSION, r:ROOM | ROOMASSIGN(ses,r) .
-		//  EXISTS cap:int | CAPACITY(r,cap) .
-		//   #{s:STUDENT | FORALL c:COURSE, lec: LECTURE | ASSIGN(c,lec,ses) . ENROLLED(s,c,lec)} <= cap 
 		for(Session S : sessions){
 			long capacity = S.room.capacity;
 			long counter = 0;
@@ -395,10 +447,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		}
 		return true;		
 	}
+	
+	
+	/**
+	 * H4: every lecture's required time must be less than the session length
+	 * 	FORALL ses:SESSION, c:COURSE, lec:LECTURE | ASSIGN(c,lec,ses) .
+	 *   EXISTS slen, llen:int | AT(ses,?,?,slen) /\ EXAMLENGTH(c,lec,llen) . llen <= slen 
+	 * 
+	 * @return true for passing, otherwise false.
+	 */
 	private boolean hardC4(){
-		//H4: every lecture's required time must be less than the session length
-		// FORALL ses:SESSION, c:COURSE, lec:LECTURE | ASSIGN(c,lec,ses) .
-		//  EXISTS slen, llen:int | AT(ses,?,?,slen) /\ EXAMLENGTH(c,lec,llen) . llen <= slen 
 		for(Session S : sessions){
 			for(Pair<Course, Lecture> assign1 : S.assignment) {
 				if(assign1.getValue().examLength > S.sessionLength){
@@ -409,6 +467,11 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		return true;
 	}
 	
+	/**
+	 * Environment constructor
+	 * 
+	 * @param name
+	 */
 	public Environment(String name) {
 		super(name);
 		students = new ArrayList<Student>();
@@ -1103,7 +1166,8 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		try {
 			outFileName += ".out";
 			PrintWriter out = new PrintWriter(outFileName);
-			/*
+/* Do not delete this commented block.
+ * It contains all of the possible print out options in it.
 			String instr = "//Instructors\n";
 			for (int i = 0; i < instructors.size(); i++) {
 				instr += "instructor("+ instructors.get(i).name + ")\n";
@@ -1208,8 +1272,8 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 					enrls += "enrolled("+ studentName + "," + crsName + "," + lecName+ ")\n";
 				}
 			}
-			out.println(enrls);*/
-			
+			out.println(enrls);
+*/
 			String assign = "//Assignments\n";
 			for (int i = 0; i < sessions.size(); i++) {
 				String sessionName = sessions.get(i).name;
@@ -1230,9 +1294,7 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 	
 	// calls the fromFile() declared in PredicateReader.java
 	public int fromFile(String fromFile) {
-
 		return super.fromFile(fromFile);
-
 	}
 
 	// getter method used by main() in ExamSchedule.java
