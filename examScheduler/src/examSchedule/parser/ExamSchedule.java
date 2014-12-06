@@ -120,7 +120,7 @@ public class ExamSchedule {
 			while ((length=System.in.read(buf))!=-1) {
 				String s = new String(buf,0,length);
 				s = s.trim();
-				if (s.equals("e xit")) break;
+				if (s.equals("exit")) break;
 				if (s.equals("?")||s.equals("help")) {
 					s = "!help()";
 					System.out.println("> !help()");

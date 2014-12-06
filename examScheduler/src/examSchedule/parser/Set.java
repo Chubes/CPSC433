@@ -7,34 +7,31 @@ import examSchedule.*;
 
 public class Set {
 
-	static int workingSetSize = 15;
-	static int workingSetKeep = 9;
-	static int bestSetSize = 5;
-//	static int workingSetSize = 30;		// number of facts in the working set
-//	static int bestSetSize = 10;	// number of facts in the all-time-best set
+	static int workingSetSize = 30;
+	static int workingSetKeep = 20;
+	static int bestSetSize = 10;
 	
 	static LinkedList<Environment> workingSet;
 	static LinkedList<Environment> bestSet;
-	final long timeLimit;
+	static long timeLimit;
+	static long startTimer;
 	static String outFile;
+	
 	public Set(Environment env, long maxTime, String outFile){
 		this.outFile = outFile;
 		this.timeLimit = maxTime;
-		long startTime = System.currentTimeMillis();
+		this.startTimer = System.currentTimeMillis();
 		Environment kontrol = env;
 		bestSet = new LinkedList<Environment>();
 		workingSet = new LinkedList<Environment>();
-		
-		while((System.currentTimeMillis() - startTime)< timeLimit ) {
+		while((System.currentTimeMillis() - startTimer) < timeLimit) {
+			
 			search(kontrol);
-			long elapsedTime = (System.currentTimeMillis() - startTime);
+			//long elapsedTime = (System.currentTimeMillis() - startTimer);
 			//System.out.println("TIME PASSED: " +elapsedTime);
 			 
 		}
 		System.out.println("DONE");
-		
-//		Environment best = workingSet.getFirst();
-//		best.printOutput(outFile + "_best");
 		
 		System.out.println("Penalty:" + bestSet.get(0).utility);
 		bestSet.get(0).printOutput(outFile);
@@ -53,7 +50,7 @@ public class Set {
 	
 	public static void search(Environment kontrol){
 		// placeholder for the next set
-		LinkedList<Environment> tempEnvSet = new LinkedList<Environment>();
+//		LinkedList<Environment> tempEnvSet = new LinkedList<Environment>();
 	
 		// ext fill (seed for the first iteration )
 		while(workingSet.size() < workingSetSize){
@@ -68,22 +65,40 @@ public class Set {
 		sortList(workingSet);
 		sortList(bestSet);
 
-		// Keeping data for best sets	
+		// Keeping data for best sets
+/*		
 		if(bestSet.size() != 0){
-		for(int i = 0; i < 10; i++ ){
-			if(bestSet.get(i).utility > workingSet.get(i).utility )
-				bestSet.add(i, workingSet.get(i));
-		}
-		}
-		else{
-			for(int i = 0; i < 10; i++ ){
-				
+			for(int i = 0; i < bestSetSize; i++ ){
+				if(bestSet.get(i).utility > workingSet.get(i).utility )
 					bestSet.add(i, workingSet.get(i));
 			}
 		}
-		for(int i = 14; i > workingSetKeep; i-- ){
+		else{
+			for(int i = 0; i < bestSetSize; i++ ){
+					bestSet.add(i, workingSet.get(i));
+			}
+		}
+*/		
+		for(int i = 0; i < bestSetSize; i++ ){
+			bestSet.add(workingSet.get(i));
+		}
+		// cleanup best set
+		sortList(bestSet);
+		while(bestSet.size() >= bestSetSize){
+			bestSet.remove((bestSet.size()-1));
+		}
+		
+		// Manipulating the working set
+		// Add top 5 best 
+		for(int i = 0; i < 5; i++){
+			workingSet.add(bestSet.get(i));
+		}
+		sortList(workingSet);
+		// Remove near the worst but not worst
+		for(int i = (workingSetSize-6); i > workingSetKeep; i-- ){
 			workingSet.remove(i);
 		}
+
 		//mutate loop
 		for(int i = (workingSet.size()-1); i>1; i--){
 			for(int j = 0; j < 10; j++) {
@@ -93,6 +108,7 @@ public class Set {
 			}
 		}
 	}
+	
 	//Mike's Generation function
 	public static Environment generateNew(Environment B){
 		
@@ -105,34 +121,36 @@ public class Set {
 			garbage.fromFile(outFile);
 			
 			ArrayList<Pair<Course,Lecture>> exams = getLec(garbage.courses);
-			
+
 			ArrayList<Session> slots = garbage.sessions;
 			ArrayList<Session> temp = new ArrayList<Session>();
-			Session tmp = new Session("");
-			
+		
 			for(Session S : slots){ 
 				while(S.assignment.size() > 0){
 					Pair<Course,Lecture> pair = S.assignment.removeFirst();
 //					System.out.println("C/L: " + pair.getKey().name + "," + pair.getValue().name + "; " + S.assignment.size());
-					S.room.remainCap -= garbage.studentCount(pair);
-					for(int i = 0; i < exams.size(); i++){
-						if(exams.get(i).getKey().equals(pair.getKey()) && exams.get(i).getValue().equals(pair.getValue())){
-							exams.remove(i);
-							break;
+					if(S.sessionLength >= pair.getValue().examLength){
+						S.room.remainCap -= garbage.studentCount(pair);
+						for(int i = 0; i < exams.size(); i++){
+							if(exams.get(i).getKey().equals(pair.getKey()) && exams.get(i).getValue().equals(pair.getValue())){
+								exams.remove(i);
+								break;
+							}
 						}
 					}
 				}
 			}
-			while(slots.size()>0){
-				
-				int r =rnd.nextInt(slots.size());
-				tmp = slots.get(r);
-				
-				slots.remove(r);
-				int i = 0;
 
+
+			while(slots.size()>0){
+				int r =rnd.nextInt(slots.size());
+				Session tmp = slots.get(r);
+				
+				tmp.room.remainCap = tmp.room.capacity;
+
+				int i = 0;
 				while(i < exams.size()){
-					if(((tmp.room.remainCap - garbage.studentCount(exams.get(i))) >= 0) && exams.get(i).getValue().examLength <= tmp.sessionLength){
+					if(((tmp.room.remainCap - garbage.studentCount(exams.get(i))) >= 0) && (exams.get(i).getValue().examLength <= tmp.sessionLength)){
 						tmp.assignment.add(exams.get(i));
 						tmp.room.remainCap -=  garbage.studentCount(exams.get(i));
 						exams.remove(i);
@@ -141,6 +159,7 @@ public class Set {
 						i++;
 					}
 				}
+				slots.remove(r);
 				temp.add(tmp);
 			}
 
@@ -164,7 +183,7 @@ public class Set {
 			//Debug				
 //			newGen.printOutput("test");
 //			B.printOutput("B");
-		}while(!newGen.hardConstraints());
+		}while(!newGen.hardConstraints() && ((System.currentTimeMillis() - startTimer) < timeLimit));
 	
 		return newGen;
 	}
@@ -235,11 +254,6 @@ public class Set {
 			s1r = rnd1.nextInt(env.sessions.size());
 			s2r = rnd2.nextInt(env.sessions.size());
 			i++;
-			if((s1r == s2r)){
-				System.out.println("Same:"+ s1r + "," + s2r);
-			}
-			System.out.println(i);
-			System.out.println(s1r + "," + s2r);
 		}
 		Session S1 = env.sessions.get(s1r);
 		Session S2 = env.sessions.get(s2r);
@@ -249,8 +263,8 @@ public class Set {
 				// Move from S2 to S1
 //				System.out.println("Move");
 				s2r = rnd.nextInt(S2.assignment.size());
-				if(S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength
-						&& env.studentCount(S2.assignment.get(s2r)) <= S1.room.remainCap) {
+				if((S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength)
+						&& (env.studentCount(S2.assignment.get(s2r)) <= S1.room.remainCap)) {
 					
 					// Move <c,lec> from S2 to S1 and update remainingCapacities.
 					S2.room.remainCap += env.studentCount(S2.assignment.get(s2r));
@@ -259,7 +273,9 @@ public class Set {
 					S2.assignment.remove(s2r);	
 					
 					// Swap occurred
-					return true;
+					if(env.hardConstraints()){
+						return true;
+					}
 				}	
 			}
 			else{
@@ -271,8 +287,8 @@ public class Set {
 					s2r = rnd.nextInt(S2.assignment.size());
 					
 					// Check exam times fit each other
-					if(S1.assignment.get(s1r).getValue().examLength <= S2.sessionLength
-							&& S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength) {
+					if((S1.assignment.get(s1r).getValue().examLength <= S2.sessionLength)
+							&& (S2.assignment.get(s2r).getValue().examLength <= S1.sessionLength)) {
 						
 						// Create potential capacities
 						long s1Cap = S1.room.remainCap + env.studentCount(S1.assignment.get(s1r));
@@ -291,13 +307,15 @@ public class Set {
 							S1.assignment.add(tmp2);
 							S2.assignment.add(tmp1);
 								
-							return true;
+							if(env.hardConstraints()){
+								return true;
+							}
 						}
 					}
 				}
 			}
 		}
-		System.out.println("Failed to move or swap...");
+//		System.out.println("Failed to move or swap...");
 		return false;
 	}
 	

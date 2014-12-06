@@ -66,16 +66,16 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 		boolean H4 = hardC4();
 		
 		if(!H1){
-			System.out.println("Failed hard constraint 1.");
+//			System.out.println("Failed hard constraint 1.");
 		}
 		if(!H2){
-			System.out.println("Failed hard constraint 2.");
+//			System.out.println("Failed hard constraint 2.");
 		}
 		if(!H3){
-			System.out.println("Failed hard constraint 3.");
+//			System.out.println("Failed hard constraint 3.");
 		}
 		if(!H4){
-			System.out.println("Failed hard constraint 4.");
+//			System.out.println("Failed hard constraint 4.");
 		}
 		if(H1 && H2 && H3 && H4){
 			return true;
@@ -338,10 +338,13 @@ public class Environment extends PredicateReader implements ExamSchedulePredicat
 					break;
 				}
 			}
+			if(!exists){
+				return false;
+			}
 		}
-		return exists;
+		return true;
 	}
-//Landon		
+		
 	private boolean hardC2(){
 		//H2: no lecture is assigned more than one exam session
 		// FORALL c:COURSE, lec:LECTURE, ses1,ses2:SESSION | LECTURE(c,lec) . 
